@@ -1,0 +1,655 @@
+// Подключение нужных библиотек
+#include "stdafx.h"
+#include <iostream> 
+#include <Windows.h>
+#include <iomanip> 
+enum ConsoleColor {
+	Black = 0,
+	Blue = 1,
+	Green = 2,
+	Cyan = 3,
+	Red = 4,
+	Magenta = 5,
+	Brown = 6,
+	LightGray = 7,
+	DarkGray = 8,
+	LightBlue = 9,
+	LightGreen = 10,
+	LightCyan = 11,
+	LightRed = 12,
+	LightMagenta = 13,
+	Yellow = 14,
+	White = 15
+};
+
+using namespace std;
+
+int main() {
+
+	// Подготовка
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("color F0");
+	char a[16][16];
+	char Action = ' ';
+	int spawn = 0, spX = 0, spY = 0, finX, finY, CheckLife = 3, Choose = -1, random = 15, EnemyLife = 3, EnX = 13, EnY = 13, EnemyAction = 0;
+	int playerX, playerY, life = 3, action = 0;   // action: 0 - prepare, 1 - play, 2 - dead, 3 - win;
+
+    // Создание карты 1 уровня
+    
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
+			if ((((j >= 1 && j <= 5) || (j >= 10 && j <= 14)) && (i >= 1 && i <= 5)) || ((j >= 1 && j <= 14) && (i >= 6 && i <= 9)) || (((j >= 1 && j <= 5) || (j >= 10 && j <= 14)) && (i >= 10 && i <= 14))) {
+				a[j][i] = '.';
+				random--;
+				if (random <= 0) {
+					a[j][i] = '^';
+					random = rand() % 9 + 5;
+				}
+				if (spawn == 0) {
+					spX = j; spY = i;
+					spawn = 1;
+				}
+				finX = j;
+				finY = i;
+			}
+			else a[j][i] = '*';
+		}
+	}
+
+     // координаты объектов
+	a[spX][spY] = '@';
+	a[finX][finY] = 'P';
+	a[5][14] = '+'; a[10][1] = '+';
+    playerX = spX; playerY = spY;
+
+
+    // визуализация консоля
+	do {
+		cout << endl << endl << endl << endl << endl << "\t\t\t\t\t\tPrince the Game" << endl << endl << endl << endl;
+		cout << "\t\t\t\t\t\t (1) New game" << endl;
+		cout << "\t\t\t\t\t\t (2) New game" << endl;
+		cout << "\t\t\t\t\t\t (3) New game" << endl;
+		cout << "\t\t\t\t\t\t (4)   Exit  " << endl << endl << "\t\t\t\t\t\t Choose: ";
+		cin >> Choose;
+		system("cls");
+	} while (Choose != 1 && Choose != 2 && Choose != 3 && Choose != 4);
+
+	if (Choose == 4) {
+		exit(0);
+	}
+
+	system("color E0");
+    
+    // Первая превью
+
+	for (int y = 0; y < 100; y++)
+	{
+		cout << endl << endl << endl << endl << endl << "\t\t\t\t\t\t Chapter 1: Save the ";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+		cout << "P";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << "rincess" << endl << endl << endl << endl << endl << endl << endl << endl;
+		int p = 0;
+		if (y < 50) {
+			while (p <= y + 8) {
+				cout << " ";
+				p++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+			cout << " HELP ME! " << endl;
+		}
+		if (y >= 50) {
+			while (p <= y + 10) {
+				cout << " ";
+				p++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+			cout << " Wuahaha! " << endl;
+		}
+		int x = 0;
+		if (y > 5) {
+			int z = 5;
+			while (z < y) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				z++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+			cout << "@";
+		}
+		if (y < 5)
+			while (x <= y) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				x++;
+			}
+		if (y >= 5)
+			while (x <= 5) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				x++;
+			}
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+		if (y > 1)
+			cout << ".";
+		if (y > 2)
+			cout << ".";
+		if (y > 3)
+			cout << ".";
+		if (y > 4)
+			cout << ".";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << "X ";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+		cout << "P";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << " X";
+
+		Sleep(200);
+
+		y++;
+		system("cls");
+	}
+
+	action = 1;
+
+	// Игровой скелет
+    
+	while (action == 1) {
+
+		do {
+			for (int i = 0; i < 16; i++) {
+				for (int j = 0; j < 16; j++) {
+
+					if (a[j][i] == '.') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+					}
+					if (a[j][i] == 'X') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+					if (a[j][i] == 'x') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+					}
+					if (a[j][i] == '^') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+					if (a[j][i] == '@') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+					}
+					if (a[j][i] == '+') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+					}
+					if (a[j][i] == '*') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Brown));
+					}
+					if (a[j][i] == 'P') {
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+					}
+					cout << setw(4) << a[j][i];
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (i == 3) {
+					if (CheckLife > life) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " Ouch! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						CheckLife--;
+					}
+					if (CheckLife < life) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " I'm strong! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						CheckLife++;
+					}
+				}
+				if (i == 4) {
+					cout << "\t\t\tPrince  ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+					cout << "@ ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (i == 5) {
+					cout << "\t\t________________________  ";
+				}
+				if (i == 7) {
+					cout << "\t\t\tLifes: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+					cout << life;
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (EnemyAction == 1) {
+					if (i == 9) {
+							cout << "\t\t\t\t  ";
+							SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+							cout << " She's mine! ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+					if (i == 10) {
+						cout << "\t\t\tThief  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						cout << "X ";
+					}
+					if (i == 11) {
+						cout << "\t\t________________________  ";
+					}
+					if (i == 13) {
+						cout << "\t\t\tLifes: ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						cout << EnemyLife;
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+				}
+				if (EnemyAction == 2) {
+					if (i == 9) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " it's not..the end.. ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+					if (i == 10) {
+						cout << "\t\t\tThief  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+						cout << "x ";
+					}
+					if (i == 11) {
+						cout << "\t\t________________________  ";
+					}
+					if (i == 13) {
+						cout << "\t\t\tLifes: ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						cout << EnemyLife;
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+				}
+				cout << endl;
+			}
+
+			cout << endl << endl << "                            Game control";
+			cout << endl << "____________________________________________________________________";
+			cout << endl << endl << "                                 U" << endl;
+			cout << endl << "                           L     E     R" << endl;
+			cout << endl << "                                 D" << endl << endl;
+			cout << "____________________________________________________________________";
+			cout << endl << "                           Your decision: ";
+
+
+			cin >> Action;
+			system("cls");
+		} while (Action != 'U' && Action != 'L' && Action != 'R' && Action != 'E' && Action != 'D' && Action != 'u' && Action != 'l' && Action != 'r' && Action != 'e' && Action != 'd');
+
+
+        // Мои действия
+		switch (Action) {
+		case 'U':
+			if (a[playerX][playerY - 1] == '*' || a[playerX][playerY - 1] == '^') {
+				life--;
+			}
+			else
+				if (a[playerX][playerY - 1] == '.') {
+					a[playerX][playerY - 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY--;
+				}
+				else {
+					if (a[playerX][playerY - 1] == 'P') {
+						a[playerX][playerY - 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY--;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX][playerY - 1] == '+') {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY--;
+						}
+						else {
+							if (a[playerX][playerY - 1] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+				break;
+		case 'u':
+			if (a[playerX][playerY - 1] == '*' || a[playerX][playerY - 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY - 1] == '.') {
+					a[playerX][playerY - 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY--;
+				}
+				else {
+					if (a[playerX][playerY - 1] == 'P') {
+						a[playerX][playerY - 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY--;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX][playerY - 1] == '+') {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY--;
+						}
+						else {
+							if (a[playerX][playerY - 1] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'L':
+			if (a[playerX - 1][playerY] == '*' || a[playerX - 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX - 1][playerY] == '.') {
+					a[playerX - 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX--;
+				}
+				else {
+					if (a[playerX - 1][playerY] == 'P') {
+						a[playerX - 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX--;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX - 1][playerY] == '+') {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX--;
+						}
+						else {
+							if (a[playerX - 1][playerY] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'l':
+			if (a[playerX - 1][playerY] == '*' || a[playerX - 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX - 1][playerY] == '.') {
+					a[playerX - 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX--;
+				}
+				else {
+					if (a[playerX - 1][playerY] == 'P') {
+						a[playerX - 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX--;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX - 1][playerY] == '+') {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX--;
+						}
+						else {
+							if (a[playerX - 1][playerY] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'R':
+			if (a[playerX + 1][playerY] == '*' || a[playerX + 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX + 1][playerY] == '.') {
+					a[playerX + 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX++;
+				}
+				else {
+					if (a[playerX + 1][playerY] == 'P') {
+						a[playerX + 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX++;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX + 1][playerY] == '+') {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX++;
+						}
+						else {
+							if (a[playerX + 1][playerY] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'r':
+			if (a[playerX + 1][playerY] == '*' || a[playerX + 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX + 1][playerY] == '.') {
+					a[playerX + 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX++;
+				}
+				else {
+					if (a[playerX + 1][playerY] == 'P') {
+						a[playerX + 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX++;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX + 1][playerY] == '+') {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX++;
+						}
+						else {
+							if (a[playerX + 1][playerY] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'D':
+			if (a[playerX][playerY + 1] == '*' || a[playerX][playerY + 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY + 1] == '.') {
+					a[playerX][playerY + 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY++;
+				}
+				else {
+					if (a[playerX][playerY + 1] == 'P') {
+						a[playerX][playerY + 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY++;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX][playerY + 1] == '+') {
+							a[playerX][playerY + 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY++;
+						}
+						else {
+							if (a[playerX][playerY + 1] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'd':
+			if (a[playerX][playerY + 1] == '*' || a[playerX][playerY + 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY + 1] == '.') {
+					a[playerX][playerY + 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY++;
+				}
+				else {
+					if (a[playerX][playerY + 1] == 'P') {
+						a[playerX][playerY + 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY++;
+						action = 3;
+						cout << "Hurray!";
+					}
+					else {
+						if (a[playerX][playerY + 1] == '+') {
+							a[playerX][playerY + 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY++;
+						}
+						else {
+							if (a[playerX][playerY + 1] == 'X') {
+								life--; EnemyLife--;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'E':
+			exit(0);
+			break;
+		case 'e':
+			exit(0);
+			break;
+		}
+        // Срабатывание бота-врага
+		if (playerX >= 11) {
+			if (EnemyAction == 0) {
+				EnemyAction = 1;
+				a[13][13] = 'X';
+			}
+		}
+        // Вражеские действия
+		if (EnemyAction == 1) {
+			if (EnX < playerX && a[EnX + 1][EnY] == '.') {
+				a[EnX + 1][EnY] = 'X';
+				a[EnX][EnY] = '.';
+				EnX++;
+			}
+			else {
+				if (EnX < playerX && a[EnX + 1][EnY] == '@') {
+					life--;
+					EnemyLife--;
+				}
+				else {
+					if (EnX > playerX && a[EnX - 1][EnY] == '.') {
+						a[EnX - 1][EnY] = 'X';
+						a[EnX][EnY] = '.';
+						EnX--;
+					}
+					else {
+						if (EnX < playerX && a[EnX + 1][EnY] == '@') {
+							life--;
+							EnemyLife--;
+						}
+						else {
+							if (EnY > playerY && a[EnX][EnY - 1] == '.') {
+								a[EnX][EnY - 1] = 'X';
+								a[EnX][EnY] = '.';
+								EnY--;
+							}
+							else {
+								if (EnX < playerX && a[EnX + 1][EnY] == '@') {
+									life--;
+									EnemyLife--;
+								}
+								else {
+
+									if (EnY > playerX && a[EnX][EnY + 1] == '.') {
+										a[EnX][EnY + 1] = 'X';
+										a[EnX][EnY] = '.';
+										EnY++;
+									}
+									else {
+										if (EnX < playerX && a[EnX + 1][EnY] == '@') {
+											life--;
+											EnemyLife--;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (EnemyLife <= 0) {
+			a[EnX][EnY] = 'x';
+			EnemyAction = 2;
+		}
+		if (life <= 0) {
+			action = 2;
+		}
+	}
+
+        // Сюжет игры
+		switch (action) {
+		case 2:
+			system("cls");
+			cout << endl << endl << endl << "                                                      You're dead" << endl << endl << endl << endl << endl << endl << endl;
+			break;
+		case 3:
+			system("cls");
+			cout << endl << endl << endl << "                                                       You're a hero          / ";
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+			cout << "L";
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+			cout << "@";
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+			cout << "V" 
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+			cout << "E"; << endl << endl << endl << endl << endl << endl << endl;
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+			break;
+		}
+
+		cout << "\t\t\t\t\t\t  Do you want restart?" << endl << "\t\t\t\t\t\t5 - Restart , not 5 - Exit" << endl << "\t\t\t\t\t\t      Choose: ";
+		cin >> action;
+		if (action == 5) {
+			action = 0;
+			system("cls");
+			main();
+		}
+
+}
