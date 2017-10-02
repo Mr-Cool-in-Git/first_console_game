@@ -1,4 +1,4 @@
-// Подключение нужных библиотек
+ // Подключение нужных библиотек
 #include "stdafx.h"
 #include <iostream> 
 #include <Windows.h>
