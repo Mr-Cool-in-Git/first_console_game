@@ -2,7 +2,7 @@
 // + 2 уровня (уровень с боссом, финальный) + туториал + настройки управления персонажа
 
 #include "stdafx.h"
-#include <iostream> 
+#include <iostream>  
 #include <Windows.h>
 #include <iomanip> 
 #include <fstream>
