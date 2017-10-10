@@ -1,4 +1,4 @@
- // Версия 2.0 или Как не стоит кодить игру.
+ // Версия 2.0 или Как не стоит кодить игру. 
 // + 2 уровня (уровень с боссом, финальный) + туториал + настройки управления персонажа
 
 #include "stdafx.h"
@@ -4180,7 +4180,7 @@ int main() {
 		} while (Choose != '1' && Choose != '2' && Choose != '3' && Choose != '4');
 
 		if (Choose == '1') {
-			Thirdlvl(5, 0, Settings);
+			Firstlvl(5, 0, Settings);
 		}
 		if (Choose == '2') {
 			Tutorial(5, 0, Settings);
