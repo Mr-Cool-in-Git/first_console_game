@@ -1,0 +1,4210 @@
+// Версия 2.0 или Как не стоит кодить игру.
+// + 2 уровня (уровень с боссом, финальный) + туториал + настройки управления персонажа
+
+#include "stdafx.h"
+#include <iostream> 
+#include <Windows.h>
+#include <iomanip> 
+#include <fstream>
+#include <ctime>
+enum ConsoleColor {
+	Black = 0,
+	Blue = 1,
+	Green = 2,
+	Cyan = 3,
+	Red = 4,
+	Magenta = 5,
+	Brown = 6,
+	LightGray = 7,
+	DarkGray = 8,
+	LightBlue = 9,
+	LightGreen = 10,
+	LightCyan = 11,
+	LightRed = 12,
+	LightMagenta = 13,
+	Yellow = 14,
+	White = 15
+};
+
+using namespace std;
+
+void Thirdlvl(int lifes, int bombs, int settings) {
+
+	char a[16][16];
+	char Action = ' ', action = '0';
+	int spX = 0, spY = 0, finX, finY, CheckLife = 5;
+	int playerX, playerY, life = lifes, bomb = 0, Settings = settings, usebomb = 0;
+	ifstream file("final.txt");
+	for (int i = 0; i < 15; i++) {
+		for (int j = 0; j < 64; j++) {
+			file >> a[j][i];
+			if (a[j][i] == 'S') {
+				spX = j; spY = i;
+			}
+		}
+	}
+	a[spX][spY] = '@';
+	playerX = spX; playerY = spY;
+	file.close();
+
+	action = '1';
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("color A0");
+
+	// Игровой скелет
+	while (action == '1') {
+
+		do {
+			for (int i = playerY - 7; i < playerY + 8; i++) {
+				for (int j = playerX - 7; j < playerX + 8; j++) {
+
+					
+					if (j < playerX - 4 || j > playerX + 4 || i < playerY - 4 || i > playerY + 4 || j < 0 || i < 0 || j > 63 || i > 14) {
+						cout << setw(4) << " ";
+					}
+					else {
+						if (a[j][i] == '.') {
+							SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightGray));
+						}
+						if (a[j][i] == 'P') {
+							SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightMagenta));
+						}
+						if (a[j][i] == '^') {
+							SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+						}
+						if (a[j][i] == '@') {
+							SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightBlue));
+						}
+						if (a[j][i] == '*') {
+							SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Brown));
+						}
+						if (a[j][i] == 'b') {
+							SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightBlue));
+						}
+						cout << setw(4) << a[j][i];
+						SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+					}
+				}
+				if (i == playerY - 3) {
+					if (CheckLife > life) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " Ouch! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+						CheckLife = life;
+					}
+					if (CheckLife < life) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " I have a power! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+						CheckLife = life;
+					}
+					if (usebomb == 1) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " BOOM! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+						usebomb = 0;
+					}
+				}
+				if (i == playerY - 2) {
+					cout << "\t\t\tPrince  ";
+					SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightBlue));
+					cout << "@ ";
+					SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+				}
+				if (i == playerY - 1) {
+					cout << "\t\t________________________  ";
+				}
+				if (i == playerY + 1) {
+					cout << "\t\t\tLifes: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightRed));
+					cout << life;
+					SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+				}
+				if (i == playerY + 2) {
+					cout << "\t\t\tBombs: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightRed));
+					cout << bomb;
+					SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black));
+				}
+
+
+
+				if (i == playerY + 4) {
+					cout << "\t I think, she is hear";
+				}
+
+				cout << endl;
+			}
+
+			cout << endl << endl << "                            Game control";
+			cout << endl << "____________________________________________________________________";
+			if (Settings == 0) {
+				cout << endl << endl << "                                 U" << endl;
+				cout << endl << "                           L     B     R" << endl;
+				cout << endl << "                                 D" << endl << endl;
+			}
+			if (Settings == 1) {
+				cout << endl << endl << "                                 W" << endl;
+				cout << endl << "                           A     B     D" << endl;
+				cout << endl << "                                 S" << endl << endl;
+			}
+			cout << "____________________________________________________________________";
+			cout << endl << "                           Your decision: ";
+
+			std::cin >> Action;
+			system("cls");
+		} while (Action != 'U' && Action != 'L' && Action != 'R' && Action != 'D' && Action != 'B' && Action != 'u' && Action != 'l' && Action != 'r' && Action != 'd' && Action != 'b' && Action != 'W' && Action != 'A' && Action != 'S' && Action != 'w' && Action != 'a' && Action != 's');
+
+		if (Settings == 0) {
+			if (Action == 'u')
+				Action = 'U';
+			if (Action == 'd')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'l')
+				Action = 'L';
+			if (Action == 'r')
+				Action = 'R';
+		}
+		if (Settings == 1) {
+			if (Action == 'd' || Action == 'D')
+				Action = 'R';
+			if (Action == 'w' || Action == 'W')
+				Action = 'U';
+			if (Action == 's' || Action == 'S')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'a' || Action == 'A')
+				Action = 'L';
+		}
+
+		switch (Action) {
+		case 'U':
+			if (a[playerX][playerY - 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY - 1] == '.') {
+					a[playerX][playerY - 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY--;
+				}
+				else {
+					if (a[playerX][playerY - 1] == 'P') {
+						a[playerX][playerY - 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY--;
+						action = '2';
+					}
+					else {
+						if (a[playerX][playerY - 1] == '+') {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY--;
+						}
+						else {
+							if (a[playerX][playerY - 1] == 'b') {
+
+								a[playerX][playerY - 1] = '@';
+								a[playerX][playerY] = '.';
+								playerY--; bomb = 99;
+							}
+							else {
+								if (a[playerX][playerY - 1] == '?') {
+
+									a[playerX][playerY - 1] = '.';
+									a[6][6] = '.';
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'L':
+			if (a[playerX - 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX - 1][playerY] == '.') {
+					a[playerX - 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX--;
+				}
+				else {
+					if (a[playerX - 1][playerY] == 'P') {
+
+						a[playerX - 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX--;
+						action = '2';
+
+					}
+					else {
+						if (a[playerX - 1][playerY] == '+') {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX--;
+						}
+						else {
+							if (a[playerX - 1][playerY] == 'T') {
+
+								a[playerX - 1][playerY] = '.';
+
+							}
+							else {
+								if (a[playerX - 1][playerY] == 'b') {
+									a[playerX - 1][playerY] = '@';
+									a[playerX][playerY] = '.';
+									playerX--; bomb = 99;
+								}
+								else {
+									if (a[playerX - 1][playerY] == '?') {
+
+										a[playerX - 1][playerY] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'R':
+			if (a[playerX + 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX + 1][playerY] == '.') {
+					a[playerX + 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX++;
+				}
+				else {
+					if (a[playerX + 1][playerY] == 'P') {
+
+						a[playerX + 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX++;
+						action = '2';
+
+					}
+					else {
+						if (a[playerX + 1][playerY] == '+') {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX++;
+						}
+						else {
+							if (a[playerX + 1][playerY] == 'T') {
+
+								a[playerX + 1][playerY] = '.';
+
+							}
+							else {
+								if (a[playerX + 1][playerY] == 'b') {
+									a[playerX + 1][playerY] = '@';
+									a[playerX][playerY] = '.';
+									playerX++; bomb = 99;
+								}
+								else {
+									if (a[playerX + 1][playerY] == '?') {
+
+										a[playerX + 1][playerY] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'D':
+			if (a[playerX][playerY + 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY + 1] == '.') {
+					a[playerX][playerY + 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY++;
+				}
+				else {
+					if (a[playerX][playerY + 1] == 'P') {
+
+						a[playerX][playerY + 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY++;
+						action = '2';
+
+					}
+					else {
+						if (a[playerX][playerY + 1] == '+') {
+							a[playerX][playerY + 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY++;
+						}
+						else {
+							if (a[playerX][playerY + 1] == 'T') {
+
+								a[playerX][playerY + 1] = '.';
+
+
+							}
+							else {
+								if (a[playerX][playerY + 1] == 'b') {
+									a[playerX][playerY + 1] = '@';
+									a[playerX][playerY] = '.';
+									playerY++; bomb = 99;
+								}
+								else {
+									if (a[playerX][playerY + 1] == '?') {
+										a[playerX][playerY + 1] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'B':
+			if (bomb > 0) {
+				usebomb = 1;
+
+				if (a[playerX][playerY + 1] == '^')
+					a[playerX][playerY + 1] = '.';
+				if (a[playerX + 1][playerY + 1] == '^')
+					a[playerX + 1][playerY + 1] = '.';
+				if (a[playerX + 1][playerY] == '^')
+					a[playerX + 1][playerY] = '.';
+				if (a[playerX][playerY - 1] == '^')
+					a[playerX][playerY - 1] = '.';
+				if (a[playerX - 1][playerY - 1] == '^')
+					a[playerX - 1][playerY - 1] = '.';
+				if (a[playerX - 1][playerY] == '^')
+					a[playerX - 1][playerY] = '.';
+				if (a[playerX - 1][playerY + 1] == '^')
+					a[playerX - 1][playerY + 1] = '.';
+				if (a[playerX + 1][playerY - 1] == '^')
+					a[playerX + 1][playerY - 1] = '.';
+
+			}
+			break;
+		}
+	}
+
+	do {
+		system("cls");
+		cout << endl << endl << endl << "                                                    The End?"; cout << "\t\tL" << setw(1);
+		SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightBlue)); cout << "@" << setw(1); SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | LightMagenta)); cout << "V"; SetConsoleTextAttribute(hConsole, (WORD)((LightGreen << 4) | Black)); cout << setw(1) << "E";
+		cout << endl << endl << endl << endl << endl << endl << endl;
+		cout << "\t\t    To continue the story you need paste zachet for that student)" << endl << "\t\t\t\t\t\t 5 - The end? " << endl << endl << "\t\t\t      Choose: ";
+		cin >> action;
+	} while (action != '5' && action != '0');
+
+	system("color F0");
+	system("cls");
+
+}
+
+void Tutorial(int lifes, int bombs, int settings) {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("color E0");
+	char a[16][16];
+	char Action = ' ', action = '0';
+	int spX = 0, spY = 0, finX, finY, CheckLife = 5, EnemyLife = 1, EnX = 13, EnY = 13, EnemyAction = 0;
+	int playerX, playerY, life = lifes,bomb = bombs, tut = 0, Settings = settings,usebomb = 0;
+	ifstream file("tutorial.txt");
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
+			file >> a[j][i];
+			if (a[j][i] == 'S') {
+				spX = j; spY = i;
+			}
+		}
+	}
+	a[spX][spY] = '@';
+	playerX = spX; playerY = spY;
+	file.close();
+
+	action = '1';
+
+	// Игровой скелет
+	while (action == '1') {
+
+		do {
+			for (int i = playerY - 7; i < playerY + 8; i++) {
+				for (int j = playerX - 7; j < playerX + 8; j++) {
+
+						if (j < playerX - 4 || j > playerX + 4 || i < playerY - 4 || i > playerY + 4 || j < 0 || i < 0 || j > 15 || i > 15) {
+							cout << setw(4) << " ";
+						}
+						else {
+							if (a[j][i] == '.') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+							}
+							if (a[j][i] == 'T') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+							}
+							if (a[j][i] == '^') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+							}
+							if (a[j][i] == '@') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+							}
+							if (a[j][i] == '+') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+							}
+							if (a[j][i] == '*') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Brown));
+							}
+							if (a[j][i] == '#') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | White));
+							}
+							if (a[j][i] == 'b') {
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+							}
+							cout << setw(4) << a[j][i];
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+				}
+					if (i == playerY - 3) {
+						if (CheckLife > life) {
+							cout << "\t\t\t\t  ";
+							SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+							cout << " Ouch! ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+							CheckLife = life;
+						}
+						if (CheckLife < life) {
+							cout << "\t\t\t\t  ";
+							SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+							cout << " I have a power! ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+							CheckLife = life;
+						}
+						if (usebomb == 1) {
+							cout << "\t\t\t\t  ";
+							SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+							cout << " BOOM! ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+							usebomb = 0;
+						}
+					}
+					if (i == playerY - 2) {
+						cout << "\t\t\tPrince  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+						cout << "@ ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+					if (i == playerY - 1) {
+						cout << "\t\t________________________  ";
+					}
+					if (i == playerY + 1) {
+						cout << "\t\t\tLifes: ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						cout << life;
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+					if (i == playerY + 2) {
+						cout << "\t\t\tBombs: ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						cout << bomb;
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+
+
+					if (tut == 0) {
+						if (i == playerY + 4) {
+							cout << "\t    Welcome to Tutorial, my Prince";
+						}
+						if (Settings == 0) {
+							if (i == playerY + 5) {
+								cout << "\t       Use udlr or UDLR to move";
+							}
+						}
+						if (Settings == 1) {
+							if (i == playerY + 6) {
+								cout << "\t       Use wasd or WASD to move";
+							}
+						}
+					}
+					if (tut == 1) {
+						if (i == playerY + 5) {
+							cout << "\t\t    Kick your target";
+						}
+						if (i == playerY + 6) {
+							cout << "\t         Move into target for kick";
+						}
+						if (i == playerY + 7) {
+							cout << "\t\t\tTarget T";
+						}
+						if (i == playerY + 8) {
+							cout << "\t\t________________________  ";
+						}
+						if (i == playerY + 9) {
+							cout << "\t\t\tLifes: ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+							cout << EnemyLife;
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+					}
+					if (tut == 2) {
+						if (i == playerY + 5) {
+							cout << "\t     Nice strike!Go to the right side!";
+						}
+						if (i == playerY + 6) {
+							cout << "\t      Use button to unlock the gates";
+						}
+					}
+					if (tut == 3) {
+						if (i == playerY + 5) {
+							cout << "\t        Destroy targets with a bomb";
+						}
+						if (i == playerY + 6) {
+							cout << "\t      Find a bomb and destroy targets with B";
+						}
+					}
+					if (tut == 4) {
+						if (i == playerY + 5) {
+							cout << "\t           You're so damaged.";
+						}
+						if (i == playerY + 6) {
+							cout << "\t\t     Use the heal";
+						}
+					}
+					if (tut == 5) {
+						if (i == playerY + 5) {
+							cout << "\t   Wow! You're ready to defend the kingdom.";
+						}
+						if (i == playerY + 6) {
+							cout << "\t\t Go to exit";
+						}
+					}
+				cout << endl;
+			}
+
+			cout << endl << endl << "                            Game control";
+			cout << endl << "____________________________________________________________________";
+			if (Settings == 0) {
+				cout << endl << endl << "                                 U" << endl;
+				cout << endl << "                           L     B     R" << endl;
+				cout << endl << "                                 D" << endl << endl;
+			}
+			if (Settings == 1) {
+				cout << endl << endl << "                                 W" << endl;
+				cout << endl << "                           A     B     D" << endl;
+				cout << endl << "                                 S" << endl << endl;
+			}
+			cout << "____________________________________________________________________";
+			cout << endl << "                           Your decision: ";
+
+			std::cin >> Action;
+			system("cls");
+		} while (Action != 'U' && Action != 'L' && Action != 'R' && Action != 'D' && Action != 'B' && Action != 'u' && Action != 'l' && Action != 'r' && Action != 'd' && Action != 'b' && Action != 'W' && Action != 'A' && Action != 'S' && Action != 'w' && Action != 'a' && Action != 's');
+
+		if (Settings == 0) {
+			if (Action == 'u')
+				Action = 'U';
+			if (Action == 'd')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'l')
+				Action = 'L';
+			if (Action == 'r')
+				Action = 'R';
+		}
+		if (Settings == 1) {
+			if (Action == 'd' || Action == 'D')
+				Action = 'R';
+			if (Action == 'w' || Action == 'W')
+				Action = 'U';
+			if (Action == 's' || Action == 'S')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'a' || Action == 'A')
+				Action = 'L';
+		}
+
+		switch (Action) {
+		case 'U':
+			if (a[playerX][playerY - 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY - 1] == '.') {
+					a[playerX][playerY - 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY--;
+				}
+				else {
+					if (a[playerX][playerY - 1] == '#') {
+						if (tut == 5) {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							playerY--;
+							action = '2';
+						}
+					}
+					else {
+						if (a[playerX][playerY - 1] == '+') {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							tut = 5;
+							life++; playerY--;
+						}
+						else {
+							if (a[playerX][playerY - 1] == 'T') {
+								if (tut == 1)
+									a[playerX][playerY - 1] = '.';
+								EnemyLife--;
+							}
+							else {
+								if (a[playerX][playerY - 1] == 'b') {
+									EnemyLife--;
+									a[playerX][playerY - 1] = '@';
+									a[playerX][playerY] = '.';
+									playerY--; bomb = 99;
+								}
+								else {
+									if (a[playerX][playerY - 1] == '?') {
+										EnemyLife--;
+										a[playerX][playerY - 1] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'L':
+			if (a[playerX - 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX - 1][playerY] == '.') {
+					a[playerX - 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX--;
+				}
+				else {
+					if (a[playerX - 1][playerY] == '#') {
+						if (tut == 5) {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							playerX--;
+							action = '2';
+						}
+					}
+					else {
+						if (a[playerX - 1][playerY] == '+') {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.'; tut = 5;
+							life++; playerX--;
+						}
+						else {
+							if (a[playerX - 1][playerY] == 'T') {
+								if (tut == 1)
+									a[playerX - 1][playerY] = '.';
+								EnemyLife--;
+							}
+							else {
+								if (a[playerX - 1][playerY] == 'b') {
+									a[playerX - 1][playerY] = '@';
+									a[playerX][playerY] = '.';
+									playerX--; bomb = 99;
+								}
+								else {
+									if (a[playerX - 1][playerY] == '?') {
+										EnemyLife--;
+										a[playerX - 1][playerY] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'R':
+			if (a[playerX + 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX + 1][playerY] == '.') {
+					a[playerX + 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX++;
+				}
+				else {
+					if (a[playerX + 1][playerY] == '#') {
+						if (tut == 5) {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							playerX++;
+							action = '2';
+						}
+					}
+					else {
+						if (a[playerX + 1][playerY] == '+') {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.'; tut = 5;
+							life++; playerX++;
+						}
+						else {
+							if (a[playerX + 1][playerY] == 'T') {
+								if (tut == 1)
+									a[playerX + 1][playerY] = '.';
+								EnemyLife--;
+							}
+							else {
+								if (a[playerX + 1][playerY] == 'b') {
+									a[playerX + 1][playerY] = '@';
+									a[playerX][playerY] = '.';
+									playerX++; bomb = 99;
+								}
+								else {
+									if (a[playerX + 1][playerY] == '?') {
+										EnemyLife--;
+										a[playerX + 1][playerY] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'D':
+			if (a[playerX][playerY + 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY + 1] == '.') {
+					a[playerX][playerY + 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY++;
+				}
+				else {
+					if (a[playerX][playerY + 1] == '#') {
+						if (tut == 5) {
+							a[playerX][playerY + 1] = '@';
+							a[playerX][playerY] = '.';
+							playerY++;
+							action = '2';
+						}
+					}
+					else {
+						if (a[playerX][playerY + 1] == '+') {
+							a[playerX][playerY + 1] = '@'; tut = 5;
+							a[playerX][playerY] = '.';
+							life++; playerY++;
+						}
+						else {
+							if (a[playerX][playerY + 1] == 'T') {
+								if (tut == 1)
+									a[playerX][playerY + 1] = '.';
+								EnemyLife--;
+
+							}
+							else {
+								if (a[playerX][playerY + 1] == 'b') {
+									a[playerX][playerY + 1] = '@';
+									a[playerX][playerY] = '.';
+									playerY++; bomb = 99;
+								}
+								else {
+									if (a[playerX][playerY + 1] == '?') {
+										EnemyLife--;
+										a[playerX][playerY + 1] = '.';
+										a[6][6] = '.';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'B':
+			if (bomb > 0) {
+				usebomb = 1;
+
+				if (a[playerX][playerY + 1] == 'T')
+					EnemyAction = 4;
+				if (a[playerX + 1][playerY + 1] == 'T')
+					EnemyAction = 4;
+				if (a[playerX + 1][playerY] == 'T')
+					EnemyAction = 4;
+				if (a[playerX][playerY - 1] == 'T')
+					EnemyAction = 4;
+				if (a[playerX - 1][playerY - 1] == 'T')
+					EnemyAction = 4;
+				if (a[playerX - 1][playerY] == 'T')
+					EnemyAction = 4;
+				if (a[playerX - 1][playerY + 1] == 'T')
+					EnemyAction = 4;
+				if (a[playerX + 1][playerY - 1] == 'T')
+					EnemyAction = 4;
+
+				if (a[playerX][playerY + 1] == 'T')
+					a[playerX][playerY + 1] = '.';
+				if (a[playerX + 1][playerY + 1] == 'T')
+					a[playerX + 1][playerY + 1] = '.';
+				if (a[playerX + 1][playerY] == 'T')
+					a[playerX + 1][playerY] = '.';
+				if (a[playerX][playerY - 1] == 'T')
+					a[playerX][playerY - 1] = '.';
+				if (a[playerX - 1][playerY - 1] == 'T')
+					a[playerX - 1][playerY - 1] = '.';
+				if (a[playerX - 1][playerY] == 'T')
+					a[playerX - 1][playerY] = '.';
+				if (a[playerX - 1][playerY + 1] == 'T')
+					a[playerX - 1][playerY + 1] = '.';
+				if (a[playerX + 1][playerY - 1] == 'T')
+					a[playerX + 1][playerY - 1] = '.';
+
+				tut = 4;
+				life = 1;
+				CheckLife = 1;
+			}
+			break;
+		}
+
+
+
+		if (playerY >= 7 && tut == 0) {
+			tut = 1;
+		}
+
+		if (EnemyLife <= 0 && tut == 1) {
+			tut = 2;
+			EnemyAction = 2;
+		}
+
+		if (playerX >= 11 && tut == 2) {
+			tut = 3;
+		}
+
+		if (life <= 0) {
+			life = 5;
+		}
+	}
+	do {
+		system("cls");
+		cout << endl << endl << endl << "                                                    Tutorial is finished           ";
+		cout << endl << endl << endl << endl << endl << endl << endl;
+		cout << "\t\t\t\t\t\t    Do you want restart?" << endl << "\t\t\t\t\t\t5 - Restart , 0 - Return to menu" << endl << "\t\t\t\t\t\t      Choose: ";
+		cin >> action;
+	} while (action != '5' && action != '0');
+
+	if (action == '5') {
+		action = 0;
+		Tutorial(5, 0, Settings);
+		system("cls");
+	}
+
+	system("color F0");
+	system("cls");
+
+}
+
+void Secondlvl(int lifes, int bombs, int settings) {
+	char a[16][16];
+	char Action = ' ', action = '0';
+	int spX = 0, spY = 0, finX, finY, CheckLife = lifes, BossAction = 0, BossLifes = 31, BossActionKD = 10, BossChoice = 0, randTime = 15, BX = 7, BY = 29, bmb = 0, y = 16, timech1 = 5;
+	int playerX, playerY, life = lifes, bomb = bombs, tut = 0, Settings = settings, usebomb = 0;
+	int en1x = -100, en2x = -100, en3x = -100, en4x = -100, en5x = -100, en6x = -100, en1y = -100, en2y = -100, en3y = -100, en4y = -100, en5y = -100, en6y = -100, en1l = -100, en2l = -100, en3l = -100, en4l = -100, en5l = -100, en6l = -100, bot1 = 0, bot2 = 0, bot3 = 0, bot4 = 0, bot5 = 0, bot6 = 0;
+	ifstream file("level2.txt");
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 33; j++) {
+			file >> a[j][i];
+			if (a[j][i] == 'S') {
+				spX = j; spY = i;
+			}
+			if (a[j][i] == 'r') {
+				a[j][i] = '+';
+			}
+			if (a[j][i] == 'O') {
+				BX = j; BY = i;
+			}
+		}
+	}
+	a[spX][spY] = '@';
+	playerX = spX; playerY = spY;
+	file.close();
+	srand(time(0));
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("color E0");
+
+
+	for (int y = 0; y < 100; y++)
+	{
+		cout << endl << endl << endl << endl << endl << "\t\t\t\t\t\t Chapter 2: Headleader ";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+		cout << "O";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << "'Neal" << endl << endl << endl << endl << endl << endl << endl << endl;
+		int p = 0;
+		if (y >= 50) {
+			while (p <= y + 10) {
+				cout << " ";
+				p++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+			cout << " Om-nom-nom " << endl;
+		}
+		int x = 0;
+		if (y > 5) {
+			int z = 5;
+			while (z < y) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				z++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+			cout << "@";
+		}
+		if (y < 5)
+			while (x <= y) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				x++;
+			}
+		if (y >= 5)
+			while (x <= 5) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				x++;
+			}
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+		if (y > 1)
+			cout << ".";
+		if (y > 2)
+			cout << ".";
+		if (y > 3)
+			cout << ".";
+		if (y > 4)
+			cout << ".";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << "X ";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+		cout << "+";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << " X";
+
+		Sleep(200);
+
+		y++;
+		system("cls");
+	}
+
+
+
+	action = '1';
+
+	// Игровой скелет
+	while (action == '1') {
+
+		do {
+			for (int i = playerY - 7; i < playerY + 8; i++) {
+				for (int j = playerX - 7; j < playerX + 8; j++) {
+
+					if (j < playerX - 4 || j > playerX + 4 || i < playerY - 4 || i > playerY + 4 || j < 0 || i < 0 || j > 32 || i > 15) {
+						cout << setw(4) << " ";
+					}
+					else {
+						if (a[j][i] == '.') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+						}
+
+						if (a[j][i] == '=') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (a[j][i] == '(') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (a[j][i] == ')') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (a[j][i] == 'O') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						}
+
+						if (a[j][i] == 'x') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+
+						if (a[j][i] == '@') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+						}
+						if (a[j][i] == '+') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						}
+						if (a[j][i] == '*') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Brown));
+						}
+						if (a[j][i] == '#') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | White));
+						}
+						if (a[j][i] == 'b') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+						}
+						cout << setw(4) << a[j][i];
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+				}
+				if (i == playerY - 3) {
+					if (BossAction == 4) {
+						cout << "  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " (I need to find the exit!) ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						CheckLife = life;
+					}
+					else {
+						if (CheckLife > life) {
+							cout << "\t\t\t\t  ";
+							SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+							cout << " Ouch! ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+							CheckLife = life;
+						}
+						else {
+							if (CheckLife < life) {
+								cout << "\t\t\t\t  ";
+								SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+								cout << " I can! I'll do it! ";
+								SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+								CheckLife = life;
+							}
+							else {
+								if (usebomb == 1) {
+									cout << "\t\t\t\t  ";
+									SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+									cout << " BOOM! ";
+									SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+									usebomb = 0;
+								}
+							}
+						}
+					}
+				}
+				if (i == playerY - 2) {
+					cout << "\t\t\tPrince  ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+					cout << "@ ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (i == playerY - 1) {
+					cout << "\t\t________________________  ";
+				}
+				if (i == playerY + 1) {
+					cout << "\t\t\tLifes: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+					cout << life;
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (i == playerY + 2) {
+					cout << "\t\t\tBombs: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+					cout << bomb;
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (BossAction >= 1) {
+					if (tut == 1) {
+						if (i == playerY + 4) {
+
+							cout << "\t\tYou came here, litle prince...";
+
+						}
+
+						if (i == playerY + 5) {
+
+							cout << "\t\tWhy? You can go away now.";
+
+						}
+					}
+					if (tut == 2) {
+						if (i == playerY + 4) {
+
+							cout << "\t\tHahah...stupid kid.";
+
+						}
+
+						if (i == playerY + 5) {
+
+							cout << "\t\tPrincess is mine and you wouldn't see her";
+
+						}
+					}
+					if (tut == 3) {
+						if (i == playerY + 4) {
+
+							cout << "\t\tYou will die like a fly";
+
+						}
+
+						if (i == playerY + 5) {
+
+							cout << "\t\tJust...die!";
+
+						}
+					}
+					if (tut == 4) {
+						if (i == playerY + 3 && BossAction == 4) {
+							cout << "\t\t\t\t\t";
+							SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+							cout << " Noooooo.... ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (i == playerY + 4) {
+
+							cout << "\t\t   Headleader ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+							cout << "O'Neal";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+
+						if (i == playerY + 5) {
+
+							cout << "\t\t________________________  ";
+
+						}
+						if (i == playerY + 6) {
+							cout << "\t\t\tLifes: ";
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+							cout << BossLifes;
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+					}
+				}
+
+				cout << endl;
+			}
+
+			cout << endl << endl << "                            Game control";
+			cout << endl << "____________________________________________________________________";
+			if (Settings == 0) {
+				cout << endl << endl << "                                 U" << endl;
+				cout << endl << "                           L     B     R" << endl;
+				cout << endl << "                                 D" << endl << endl;
+			}
+			if (Settings == 1) {
+				cout << endl << endl << "                                 W" << endl;
+				cout << endl << "                           A     B     D" << endl;
+				cout << endl << "                                 S" << endl << endl;
+			}
+			cout << "____________________________________________________________________";
+			cout << endl << "                           Your decision: ";
+
+			std::cin >> Action;
+			system("cls");
+		} while (Action != 'U' && Action != 'L' && Action != 'R' && Action != 'D' && Action != 'B' && Action != 'u' && Action != 'l' && Action != 'r' && Action != 'd' && Action != 'b' && Action != 'W' && Action != 'A' && Action != 'S' && Action != 'w' && Action != 'a' && Action != 's');
+
+		if (Settings == 0) {
+			if (Action == 'u')
+				Action = 'U';
+			if (Action == 'd')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'l')
+				Action = 'L';
+			if (Action == 'r')
+				Action = 'R';
+		}
+		if (Settings == 1) {
+			if (Action == 'd' || Action == 'D')
+				Action = 'R';
+			if (Action == 'w' || Action == 'W')
+				Action = 'U';
+			if (Action == 's' || Action == 'S')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'a' || Action == 'A')
+				Action = 'L';
+		}
+
+		switch (Action) {
+		case 'U':
+			if (a[playerX][playerY - 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY - 1] == '.') {
+					a[playerX][playerY - 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY--;
+				}
+				else {
+					if (a[playerX][playerY - 1] == '#') {
+
+						a[playerX][playerY - 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY--;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX][playerY - 1] == '+') {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY--;
+						}
+						else {
+							if (a[playerX][playerY - 1] == 'b') {
+								a[playerX][playerY - 1] = '@';
+								a[playerX][playerY] = '.';
+								playerY--; bomb++;
+							}
+							else {
+								if (a[playerX][playerY - 1] == '?') {
+									if (tut == 1) {
+										tut = 2;
+										a[15][1] = '.';
+										a[16][1] = '.';
+										a[playerX][playerY - 1] = '.';
+									}
+									if (tut == 7) {
+										a[37][6] = '.';
+										a[37][7] = '.';
+										a[37][8] = '.';
+										a[playerX][playerY - 1] = '.';
+									}
+									if (tut == 8) {
+										a[40][7] = '.';
+										a[playerX][playerY - 1] = '.';
+									}
+								}
+								else {
+									if (a[playerX][playerY - 1] == 'P') {
+										tut = 1;
+										a[playerX][playerY - 1] = '?';
+									}
+									else {
+										if (a[playerX][playerY - 1] == '(') {
+											BossLifes--;
+										}
+										else {
+											if (a[playerX][playerY - 1] == ')') {
+												BossLifes--;
+											}
+											else {
+												if (a[playerX][playerY - 1] == '=') {
+													BossLifes--;
+												}
+												else {
+													if (a[playerX][playerY - 1] == 'O' || a[playerX][playerY - 1] == 'X') {
+														BossLifes--;
+													}
+													else {
+														if (a[playerX][playerY - 1] == a[en1x][en1y]) {
+															en1l--;
+														}
+														else {
+															if (a[playerX][playerY - 1] == a[en2x][en2y]) {
+																en2l--;
+															}
+															else {
+																if (a[playerX][playerY - 1] == a[en3x][en3y]) {
+																	en3l--;
+																}
+																else {
+																	if (a[playerX][playerY - 1] == a[en4x][en4y]) {
+																		en4l--;
+																	}
+																	else {
+																		if (a[playerX][playerY - 1] == a[en5x][en5y]) {
+																			en5l--;
+																		}
+																		else {
+																			if (a[playerX][playerY - 1] == a[en6x][en6y]) {
+																				en6l--;
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'L':
+			if (a[playerX - 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX - 1][playerY] == '.') {
+					a[playerX - 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX--;
+				}
+				else {
+					if (a[playerX - 1][playerY] == '#') {
+
+						a[playerX - 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX--;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX - 1][playerY] == '+') {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX--;
+						}
+						else {
+							if (a[playerX - 1][playerY] == 'b') {
+								a[playerX - 1][playerY] = '@';
+								a[playerX][playerY] = '.';
+								playerX--; bomb++;
+							}
+							else {
+								if (a[playerX - 1][playerY] == '?') {
+									if (tut == 1) {
+										tut = 2;
+										a[15][1] = '.';
+										a[16][1] = '.';
+										a[playerX - 1][playerY] = '.';
+									}
+									if (tut == 7) {
+										a[37][6] = '.';
+										a[37][7] = '.';
+										a[37][8] = '.';
+										a[playerX - 1][playerY] = '.';
+									}
+									if (tut == 8) {
+										a[40][7] = '.';
+										a[playerX - 1][playerY] = '.';
+									}
+									else {
+										if (a[playerX - 1][playerY] == 'P') {
+											tut = 1;
+											a[playerX - 1][playerY] = '?';
+										}
+										else {
+											if (a[playerX - 1][playerY] == '(') {
+												BossLifes--;
+											}
+											else {
+												if (a[playerX - 1][playerY] == ')') {
+													BossLifes--;
+												}
+												else {
+													if (a[playerX - 1][playerY] == '=') {
+														BossLifes--;
+													}
+													else {
+														if (a[playerX - 1][playerY] == 'O' || a[playerX - 1][playerY] == 'X') {
+															BossLifes--;
+														}
+														else {
+															if (a[playerX - 1][playerY] == a[en1x][en1y]) {
+																en1l--;
+															}
+															else {
+																if (a[playerX - 1][playerY] == a[en2x][en2y]) {
+																	en2l--;
+																}
+																else {
+																	if (a[playerX - 1][playerY] == a[en3x][en3y]) {
+																		en3l--;
+																	}
+																	else {
+																		if (a[playerX - 1][playerY] == a[en4x][en4y]) {
+																			en4l--;
+																		}
+																		else {
+																			if (a[playerX - 1][playerY] == a[en5x][en5y]) {
+																				en5l--;
+																			}
+																			else {
+																				if (a[playerX - 1][playerY] == a[en6x][en6y]) {
+																					en6l--;
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'R':
+			if (a[playerX + 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX + 1][playerY] == '.') {
+					a[playerX + 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX++;
+				}
+				else {
+					if (a[playerX + 1][playerY] == '#') {
+
+						a[playerX + 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX++;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX + 1][playerY] == '+') {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX++;
+						}
+						else {
+							if (a[playerX + 1][playerY] == 'b') {
+								a[playerX + 1][playerY] = '@';
+								a[playerX][playerY] = '.';
+								playerX++; bomb++;
+							}
+							else {
+								if (a[playerX + 1][playerY] == '?') {
+									if (tut == 1) {
+										tut = 2;
+										a[15][1] = '.';
+										a[16][1] = '.';
+										a[playerX + 1][playerY] = '.';
+									}
+									if (tut == 7) {
+										a[37][6] = '.';
+										a[37][7] = '.';
+										a[37][8] = '.';
+										a[playerX + 1][playerY] = '.';
+									}
+									if (tut == 8) {
+										a[40][7] = '.';
+										a[playerX + 1][playerY] = '.';
+									}
+
+								}
+								else {
+									if (a[playerX + 1][playerY] == 'P') {
+										tut = 1;
+										a[playerX + 1][playerY] = '?';
+									}
+									else {
+										if (a[playerX + 1][playerY] == '(') {
+											BossLifes--;
+										}
+										else {
+											if (a[playerX + 1][playerY] == ')') {
+												BossLifes--;
+											}
+											else {
+												if (a[playerX + 1][playerY] == '=') {
+													BossLifes--;
+												}
+												else {
+													if (a[playerX + 1][playerY] == 'O' || a[playerX + 1][playerY] == 'X') {
+														BossLifes--;
+													}
+													else {
+														if (a[playerX + 1][playerY] == a[en1x][en1y]) {
+															en1l--;
+														}
+														else {
+															if (a[playerX + 1][playerY] == a[en2x][en2y]) {
+																en2l--;
+															}
+															else {
+																if (a[playerX + 1][playerY] == a[en3x][en3y]) {
+																	en3l--;
+																}
+																else {
+																	if (a[playerX + 1][playerY] == a[en4x][en4y]) {
+																		en4l--;
+																	}
+																	else {
+																		if (a[playerX + 1][playerY] == a[en5x][en5y]) {
+																			en5l--;
+																		}
+																		else {
+																			if (a[playerX + 1][playerY] == a[en6x][en6y]) {
+																				en6l--;
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'D':
+			if (a[playerX][playerY + 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY + 1] == '.') {
+					a[playerX][playerY + 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY++;
+				}
+				else {
+					if (a[playerX][playerY + 1] == '#') {
+
+						a[playerX][playerY + 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY++;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX][playerY + 1] == '+') {
+							a[playerX][playerY + 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY++;
+						}
+						else {
+							if (a[playerX][playerY + 1] == 'b') {
+								a[playerX][playerY + 1] = '@';
+								a[playerX][playerY] = '.';
+								playerY++; bomb++;
+							}
+							else {
+								if (a[playerX][playerY + 1] == '?') {
+									if (tut == 1) {
+										tut = 2;
+										a[15][1] = '.';
+										a[16][1] = '.';
+										a[playerX][playerY + 1] = '.';
+									}
+									if (tut == 7) {
+										a[37][6] = '.';
+										a[37][7] = '.';
+										a[37][8] = '.';
+										a[playerX][playerY + 1] = '.';
+									}
+									if (tut == 8) {
+										a[40][7] = '.';
+										a[playerX][playerY + 1] = '.';
+									}
+								}
+								else {
+									if (a[playerX][playerY + 1] == 'P') {
+										tut = 1;
+										a[playerX][playerY + 1] = '?';
+									}
+									else {
+										if (a[playerX][playerY + 1] == '(') {
+											BossLifes--;
+										}
+										else {
+											if (a[playerX][playerY + 1] == ')') {
+												BossLifes--;
+											}
+											else {
+												if (a[playerX][playerY + 1] == '=') {
+													BossLifes--;
+												}
+												else {
+													if (a[playerX][playerY + 1] == 'O' || a[playerX][playerY + 1] == 'X') {
+														BossLifes--;
+													}
+													else {
+														if (a[playerX][playerY + 1] == a[en1x][en1y]) {
+															en1l--;
+														}
+														else {
+															if (a[playerX][playerY + 1] == a[en2x][en2y]) {
+																en2l--;
+															}
+															else {
+																if (a[playerX][playerY + 1] == a[en3x][en3y]) {
+																	en3l--;
+																}
+																else {
+																	if (a[playerX][playerY + 1] == a[en4x][en4y]) {
+																		en4l--;
+																	}
+																	else {
+																		if (a[playerX][playerY + 1] == a[en5x][en5y]) {
+																			en5l--;
+																		}
+																		else {
+																			if (a[playerX][playerY + 1] == a[en6x][en6y]) {
+																				en6l--;
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'B':
+			if (bomb > 0) {
+				usebomb = 1;
+				bomb--;
+				if (a[playerX][playerY + 1] == 'O' || a[playerX][playerY + 1] == '=' || a[playerX][playerY + 1] == '(' || a[playerX][playerY + 1] == ')' || a[playerX][playerY + 1] == 'X')
+					BossLifes -= 3;
+				if (a[playerX + 1][playerY + 1] == 'O' || a[playerX + 1][playerY + 1] == '=' && a[playerX + 1][playerY + 1] == '(' || a[playerX + 1][playerY + 1] == ')' || a[playerX + 1][playerY + 1] == 'X')
+					BossLifes -= 3;
+				if (a[playerX + 1][playerY] == 'O' || a[playerX + 1][playerY] == '=' || a[playerX + 1][playerY] == '(' || a[playerX + 1][playerY] == ')' || a[playerX + 1][playerY] == 'X')
+					BossLifes -= 3;
+				if (a[playerX][playerY - 1] == 'O' || a[playerX][playerY - 1] == '=' || a[playerX][playerY - 1] == '(' || a[playerX][playerY - 1] == ')' || a[playerX][playerY - 1] == 'X')
+					BossLifes -= 3;
+				if (a[playerX - 1][playerY - 1] == 'O' || a[playerX - 1][playerY - 1] == '=' || a[playerX - 1][playerY - 1] == '(' || a[playerX - 1][playerY - 1] == ')' || a[playerX - 1][playerY - 1] == 'X')
+					BossLifes -= 3;
+				if (a[playerX - 1][playerY] == 'O' || a[playerX - 1][playerY] == '=' || a[playerX - 1][playerY] == '(' || a[playerX - 1][playerY] == ')' || a[playerX - 1][playerY] == 'X')
+					BossLifes -= 3;
+				if (a[playerX - 1][playerY + 1] == 'O' || a[playerX - 1][playerY + 1] == '=' || a[playerX - 1][playerY + 1] == '(' || a[playerX - 1][playerY + 1] == ')' || a[playerX - 1][playerY + 1] == 'X')
+					BossLifes -= 3;
+				if (a[playerX + 1][playerY - 1] == 'O' || a[playerX + 1][playerY - 1] == '=' || a[playerX + 1][playerY - 1] == '(' || a[playerX + 1][playerY - 1] == ')' || a[playerX + 1][playerY - 1] == 'X')
+					BossLifes -= 3;
+
+				if (a[playerX][playerY + 1] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX + 1][playerY + 1] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX + 1][playerY] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX][playerY - 1] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX - 1][playerY - 1] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX - 1][playerY] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX - 1][playerY + 1] == a[en1x][en1y])
+					en1l--;
+				if (a[playerX + 1][playerY - 1] == a[en1x][en1y])
+					en1l--;
+
+				if (a[playerX][playerY + 1] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX + 1][playerY + 1] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX + 1][playerY] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX][playerY - 1] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX - 1][playerY - 1] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX - 1][playerY] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX - 1][playerY + 1] == a[en2x][en2y])
+					en2l--;
+				if (a[playerX + 1][playerY - 1] == a[en2x][en2y])
+					en2l--;
+
+				if (a[playerX][playerY + 1] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX + 1][playerY + 1] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX + 1][playerY] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX][playerY - 1] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX - 1][playerY - 1] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX - 1][playerY] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX - 1][playerY + 1] == a[en3x][en3y])
+					en3l--;
+				if (a[playerX + 1][playerY - 1] == a[en3x][en3y])
+					en3l--;
+
+				if (a[playerX][playerY + 1] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX + 1][playerY + 1] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX + 1][playerY] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX][playerY - 1] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX - 1][playerY - 1] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX - 1][playerY] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX - 1][playerY + 1] == a[en4x][en4y])
+					en4l--;
+				if (a[playerX + 1][playerY - 1] == a[en4x][en4y])
+					en4l--;
+
+				if (a[playerX][playerY + 1] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX + 1][playerY + 1] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX + 1][playerY] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX][playerY - 1] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX - 1][playerY - 1] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX - 1][playerY] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX - 1][playerY + 1] == a[en5x][en5y])
+					en5l--;
+				if (a[playerX + 1][playerY - 1] == a[en5x][en5y])
+					en5l--;
+
+				if (a[playerX][playerY + 1] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX + 1][playerY + 1] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX + 1][playerY] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX][playerY - 1] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX - 1][playerY - 1] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX - 1][playerY] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX - 1][playerY + 1] == a[en6x][en6y])
+					en6l--;
+				if (a[playerX + 1][playerY - 1] == a[en6x][en6y])
+					en6l--;
+
+			}
+			break;
+		}
+
+		randTime--;
+		if (randTime < 1) {
+			randTime = 15;
+
+		}
+
+		if (BossAction == 1 && tut < 4) {
+			tut++;
+		}
+
+		if (playerX > 15 && BossAction == 0) {
+			a[15][7] = '*';
+			BossAction = 1;
+		}
+
+		cout << "BA" << BossAction << "BossChoice" << BossChoice;
+		if (BossAction == 1) {
+			if (BossChoice == 0) {
+				BossActionKD--;
+				if (BossActionKD <= 0) {
+					srand(time(0));
+					BossChoice = 1 + rand() % 3;
+					BossActionKD = 2;
+				}
+				if (BossChoice == 1) {
+					en1x = 16; en1y = 3;
+					en2x = 16; en2y = 13;
+					en3x = 25; en3y = 3;
+					en4x = 25; en4y = 13;
+					en5x = 30; en5y = 3;
+					en6x = 30; en6y = 13;
+					bot1 = 1; bot2 = 1; bot3 = 1;
+					bot4 = 1; bot5 = 1; bot6 = 1;
+					en1l = 1; en2l = 1; en3l = 1;
+					en4l = 1; en5l = 1; en6l = 1;
+					timech1 = 7;
+				}
+				if (BossChoice == 3)
+					y = 16;
+			}
+			randTime--;
+			if (randTime < 1) {
+				randTime = 15;
+				if(a[16][1] != '@')
+				a[16][1] = '+';
+				if (a[31][1] != '@')
+				a[31][1] = '+';
+				if (a[16][14] != '@')
+				a[16][14] = '+';
+				if (a[31][14] != '@')
+				a[31][14] = '+';
+			}
+			if (BossChoice == 1) {
+				timech1--;
+				if (bot1 == 1) {
+					if (en1x < playerX && a[en1x + 1][en1y] == '.') {
+						a[en1x + 1][en1y] = 'x';
+						a[en1x][en1y] = '.';
+						en1x++;
+
+					}
+					else {
+						if (en1x < playerX && a[en1x + 1][en1y] == '@') {
+							life--;
+						}
+						else {
+							if (en1x > playerX && a[en1x - 1][en1y] == '.') {
+								a[en1x - 1][en1y] = 'x';
+								a[en1x][en1y] = '.';
+								en1x--;
+							}
+							else {
+								if (en1x > playerX && a[en1x - 1][en1y] == '@') {
+									life--;
+								}
+								else {
+									if (en1y > playerY && a[en1x][en1y - 1] == '.') {
+										a[en1x][en1y - 1] = 'x';
+										a[en1x][en1y] = '.';
+										en1y--;
+									}
+									else {
+										if (en1y > playerY && a[en1x][en1y - 1] == '@') {
+											life--;
+										}
+										else {
+											if (en1y < playerY && a[en1x][en1y + 1] == '.') {
+												a[en1x][en1y + 1] = 'x';
+												a[en1x][en1y] = '.';
+												en1y++;
+											}
+											else {
+												if (en1y < playerY && a[en1x][en1y + 1] == '@') {
+													life--;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (bot2 == 1) {
+					if (en2x < playerX && a[en2x + 1][en2y] == '.') {
+						a[en2x + 1][en2y] = 'x';
+						a[en2x][en2y] = '.';
+						en2x++;
+					}
+					else {
+						if (en2x < playerX && a[en2x + 1][en2y] == '@') {
+							life--;
+						}
+						else {
+							if (en2x > playerX && a[en2x - 1][en2y] == '.') {
+								a[en2x - 1][en2y] = 'x';
+								a[en2x][en2y] = '.';
+								en2x--;
+							}
+							else {
+								if (en2x > playerX && a[en2x - 1][en2y] == '@') {
+									life--;
+								}
+								else {
+									if (en2y > playerY && a[en2x][en2y - 1] == '.') {
+										a[en2x][en2y - 1] = 'x';
+										a[en2x][en2y] = '.';
+										en2y--;
+									}
+									else {
+										if (en2y > playerY && a[en2x][en2y - 1] == '@') {
+											life--;
+										}
+										else {
+											if (en2y < playerY && a[en2x][en2y + 1] == '.') {
+												a[en2x][en2y + 1] = 'x';
+												a[en2x][en2y] = '.';
+												en2y++;
+											}
+											else {
+												if (en2y < playerY && a[en2x][en2y + 1] == '@') {
+													life--;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (bot3 == 1) {
+					if (en3x < playerX && a[en3x + 1][en3y] == '.') {
+						a[en3x + 1][en3y] = 'x';
+						a[en3x][en3y] = '.';
+						en3x++;
+
+					}
+					else {
+						if (en3x < playerX && a[en3x + 1][en3y] == '@') {
+							life--;
+						}
+						else {
+							if (en3x > playerX && a[en3x - 1][en3y] == '.') {
+								a[en3x - 1][en3y] = 'x';
+								a[en3x][en3y] = '.';
+								en3x--;
+							}
+							else {
+								if (en3x > playerX && a[en3x - 1][en3y] == '@') {
+									life--;
+								}
+								else {
+									if (en3y > playerY && a[en3x][en3y - 1] == '.') {
+										a[en3x][en3y - 1] = 'x';
+										a[en3x][en3y] = '.';
+										en3x--;
+									}
+									else {
+										if (en3y > playerY && a[en3x][en3y - 1] == '@') {
+											life--;
+										}
+										else {
+											if (en3y < playerY && a[en3x][en3y + 1] == '.') {
+												a[en3x][en3y + 1] = 'x';
+												a[en3x][en3y] = '.';
+												en3y++;
+											}
+											else {
+												if (en3y < playerY && a[en3x][en3y + 1] == '@') {
+													life--;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (bot4 == 1) {
+					if (en4x < playerX && a[en4x + 1][en4y] == '.') {
+						a[en4x + 1][en4y] = 'x';
+						a[en4x][en4y] = '.';
+						en4x++;
+
+					}
+					else {
+						if (en4x < playerX && a[en4x + 1][en4y] == '@') {
+							life--;
+						}
+						else {
+							if (en4x > playerX && a[en4x - 1][en4y] == '.') {
+								a[en4x - 1][en4y] = 'x';
+								a[en4x][en4y] = '.';
+								en4x--;
+							}
+							else {
+								if (en4x > playerX && a[en4x - 1][en4y] == '@') {
+									life--; cout << "*";
+								}
+								else {
+									if (en4y > playerY && a[en4x][en4y - 1] == '.') {
+										a[en4x][en4y - 1] = 'x';
+										a[en4x][en4y] = '.';
+										en4x--;
+									}
+									else {
+										if (en4y > playerY && a[en4x][en4y - 1] == '@') {
+											life--;
+										}
+										else {
+											if (en4y < playerY && a[en4x][en4y + 1] == '.') {
+												a[en4x][en4y + 1] = 'x';
+												a[en4x][en4y] = '.';
+												en4y++;
+											}
+											else {
+												if (en4y < playerY && a[en4x][en4y + 1] == '@') {
+													life--;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (bot5 == 1) {
+					if (en5x < playerX && a[en5x + 1][en5y] == '.') {
+						a[en5x + 1][en5y] = 'x';
+						a[en5x][en5y] = '.';
+						en5x++;
+
+					}
+					else {
+						if (en5x < playerX && a[en5x + 1][en5y] == '@') {
+							life--;
+						}
+						else {
+							if (en5x > playerX && a[en5x - 1][en5y] == '.') {
+								a[en5x - 1][en5y] = 'x';
+								a[en5x][en5y] = '.';
+								en5x--;
+							}
+							else {
+								if (en5x > playerX && a[en5x - 1][en5y] == '@') {
+									life--; cout << "*";
+								}
+								else {
+									if (en5y > playerY && a[en5x][en5y - 1] == '.') {
+										a[en5x][en5y - 1] = 'x';
+										a[en5x][en5y] = '.';
+										en5x--;
+									}
+									else {
+										if (en5y > playerY && a[en5x][en5y - 1] == '@') {
+											life--;
+										}
+										else {
+											if (en5y < playerY && a[en5x][en5y + 1] == '.') {
+												a[en5x][en5y + 1] = 'x';
+												a[en5x][en5y] = '.';
+												en5y++;
+											}
+											else {
+												if (en5y < playerY && a[en5x][en5y + 1] == '@') {
+													life--;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (bot6 == 1) {
+					if (en6x < playerX && a[en6x + 1][en6y] == '.') {
+						a[en6x + 1][en6y] = 'x';
+						a[en6x][en6y] = '.';
+						en6x++;
+
+					}
+					else {
+						if (en6x < playerX && a[en6x + 1][en6y] == '@') {
+							life--;
+						}
+						else {
+							if (en6x > playerX && a[en6x - 1][en6y] == '.') {
+								a[en6x - 1][en6y] = 'x';
+								a[en6x][en6y] = '.';
+								en6x--;
+							}
+							else {
+								if (en6x > playerX && a[en6x - 1][en6y] == '@') {
+									life--;
+								}
+								else {
+									if (en6y > playerY && a[en6x][en6y - 1] == '.') {
+										a[en6x][en6y - 1] = 'x';
+										a[en6x][en6y] = '.';
+										en6x--;
+									}
+									else {
+										if (en6y > playerY && a[en6x][en6y - 1] == '@') {
+											life--;
+										}
+										else {
+											if (en6y < playerY && a[en6x][en6y + 1] == '.') {
+												a[en6x][en6y + 1] = 'x';
+												a[en6x][en6y] = '.';
+												en6y++;
+											}
+											else {
+												if (en6y < playerY && a[en6x][en6y + 1] == '@') {
+													life--;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (timech1 <= 0) {
+					en1l = 0; en2l = 0; en3l = 0;
+					en4l = 0; en5l = 0; en6l = 0;
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == 'x') {
+								a[j][i] = '.';
+							}
+						}
+						BossChoice = 0;
+					}
+				}
+			}
+			if (BossChoice == 2) {
+
+				if (bmb == 0) {
+					if (a[BX + 3][BY + 3] == '.') {
+						a[BX + 3][BY + 3] = 'o';
+					}
+					else life--;
+					if (a[BX + 3][BY] == '.') {
+						a[BX + 3][BY] = 'o';
+					}
+					else life--;
+					if (a[BX][BY + 3] == '.') {
+						a[BX][BY + 3] = 'o';
+					}
+					else life--;
+					if (a[BX - 3][BY - 3] == '.') {
+						a[BX - 3][BY - 3] = 'o';
+					}
+					else life--;
+					if (a[BX - 3][BY + 3] == '.') {
+						a[BX - 3][BY + 3] = 'o';
+					}
+					else life--;
+					if (a[BX + 3][BY - 3] == '.') {
+						a[BX + 3][BY - 3] = 'o';
+					}
+					else life--;
+					if (a[BX - 3][BY] == '.') {
+						a[BX - 3][BY] = 'o';
+					}
+					else life--;
+					if (a[BX][BY - 3] == '.') {
+						a[BX][BY - 3] = 'o';
+					}
+					else life--;
+					bmb = 1;
+				}
+				else {
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == 'o') {
+								if (a[j][i + 1] == '@')
+									life-=2;
+								if (a[j + 1][i] == '@')
+									life-=2;
+								if (a[j + 1][i + 1] == '@')
+									life-=2;
+								if (a[j][i - 1] == '@')
+									life-=2;
+								if (a[j - 1][i] == '@')
+									life-=2;
+								if (a[j - 1][i - 1] == '@')
+									life-=2;
+								if (a[j + 1][i - 1] == '@')
+									life-=2;
+								if (a[j - 1][i + 1] == '@')
+									life-=2;
+								a[j][i] = '.';
+							}
+						}
+					}
+					bmb = 0;
+					BossChoice = 0;
+				}
+			}
+			if (BossChoice == 3) {
+				for (int i = 1; i < 15; i++) {
+					for (int j = y; j < y + 4; j++) {
+						if ((i + j) % 2 == 0)
+							if (a[j][i] == '.') {
+								a[j][i] = '^';
+							}
+							else {
+								if (a[j][i] == '@') {
+									life--;
+								}
+							}
+					}
+				}
+				if (y >= 29) {
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == '^')
+								a[j][i] = '.';
+						}
+					}
+					BossChoice = 0;
+					y = 16;
+				}
+				y += 4;
+			}
+
+			if (en1l <= 0 && bot1 == 1) {
+				a[en1x][en1y] = '.';
+				en1x = -10;
+				en1y = -10;
+				bot1 = 0;
+			}
+
+			if (en2l <= 0 && bot2 == 1) {
+				a[en2x][en2y] = '.';
+				en2x = -10;
+				en2y = -10;
+				bot2 = 0;
+			}
+
+			if (en3l <= 0 && bot3 == 1) {
+				a[en3x][en3y] = '.';
+				en3x = -10;
+				en3y = -10;
+				bot3 = 0;
+			}
+			if (en4l <= 0 && bot4 == 1) {
+				a[en4x][en4y] = '.';
+				en4x = -10;
+				en4y = -10;
+				bot4 = 0;
+			}
+
+			if (en5l <= 0 && bot5 == 1) {
+				a[en5x][en5y] = '.';
+				en5x = -10;
+				en5y = -10;
+				bot5 = 0;
+			}
+
+			if (en6l <= 0 && bot6 == 1) {
+				a[en6x][en6y] = '.';
+				en6x = -10;
+				en6y = -10;
+				bot6 = 0;
+			}
+
+			if (bot1 == 0 && bot2 == 0 && bot3 == 0 && bot4 == 0 && bot5 == 0 && bot6 == 0 && BossChoice == 1)
+			{
+				BossChoice = 0;
+			}
+		}
+		if (BossAction == 2) {
+			if (BossChoice == 0) {
+				BossActionKD--;
+				if (BossActionKD <= 0) {
+					srand(time(0));
+					BossChoice = 1 + rand() % 3;
+					BossActionKD = 1;
+				}
+				if (BossChoice == 1) {
+					timech1 = 7;
+				}
+				if (BossChoice == 3)
+					y = 16;
+			}
+			randTime--;
+			if (randTime < 1) {
+				randTime = 15;
+				if (a[16][1] != '@')
+					a[16][1] = '+';
+				if (a[30][1] != '@')
+					a[30][1] = 'b';
+				if (a[16][14] != '@')
+					a[16][14] = '+';
+				if (a[30][14] != '@')
+					a[30][14] = 'b';
+			}
+	
+			if (BossChoice == 1) {
+				cout << BX << BY;
+				timech1--;
+				if (BX - 2 >= playerX) {
+					if (BX - 2 > playerX) {
+						a[BX - 2][BY + 1] = 'X';
+						a[BX - 2][BY] = 'X';
+						a[BX - 2][BY - 1] = 'X';
+						a[BX - 1][BY + 1] = 'X';
+						a[BX - 1][BY] = 'O';
+						a[BX - 1][BY - 1] = 'X';
+						a[BX][BY + 1] = 'X';
+						a[BX][BY] = 'X';
+						a[BX][BY - 1] = 'X';
+						a[BX + 1][BY + 1] = '.';
+						a[BX + 1][BY] = '.';
+						a[BX + 1][BY - 1] = '.';
+						BX--;
+					}
+					else {
+						life--;
+					}
+				}else {
+					if (BX + 2 <= playerX) {
+						if (BX + 2 < playerX) {
+							a[BX + 2][BY + 1] = 'X';
+							a[BX + 2][BY] = 'X';
+							a[BX + 2][BY - 1] = 'X';
+							a[BX + 1][BY + 1] = 'X';
+							a[BX + 1][BY] = 'O';
+							a[BX + 1][BY - 1] = 'X';
+							a[BX][BY + 1] = 'X';
+							a[BX][BY] = 'X';
+							a[BX][BY - 1] = 'X';
+							a[BX - 1][BY + 1] ='.';
+							a[BX - 1][BY] = '.';
+							a[BX - 1][BY - 1] = '.';
+							BX++;
+						}
+						else {
+							life--;
+						}
+					}
+					else {
+						if (BY + 2 <= playerY) {
+							if (BY + 2 < playerY) {
+								a[BX + 1][BY + 2] = 'X';
+								a[BX][BY + 2] = 'X';
+								a[BX - 1][BY + 2] = 'X';
+								a[BX + 1][BY + 1] = 'X';
+								a[BX][BY + 1] = 'O';
+								a[BX - 1][BY + 1] = 'X';
+								a[BX + 1][BY] = 'X';
+								a[BX][BY]= 'X';
+								a[BX - 1][BY] = 'X';
+								a[BX + 1][BY - 1] = 'X';
+								a[BX][BY - 1] = 'X';
+								a[BX - 1][BY - 1] = 'X';
+								BY++;
+							}
+							else {
+								life--;
+							}
+						}
+						else {
+							if (BY - 2 >= playerY) {
+								if (BY - 2 > playerY) {
+									a[BX + 1][BY - 2] = 'X';
+									a[BX][BY - 2] = 'X';
+									a[BX - 1][BY - 2] = 'X';
+									a[BX + 1][BY - 1] = 'X';
+									a[BX][BY - 1] = 'O';
+									a[BX - 1][BY - 1] = 'X';
+									a[BX + 1][BY] = 'X';
+									a[BX][BY] ='X';
+									a[BX - 1][BY] = 'X';
+									a[BX + 1][BY + 1] = 'X';
+									a[BX][BY + 1] = 'X';
+									a[BX - 1][BY + 1] = 'X';
+									BY--;
+								}
+								else {
+									life--;
+								}
+							}
+						}
+					}
+				}
+				for (int i = 1; i < 15; i++) {
+					for (int j = 16; j < 32; j++) {
+						if (a[j][i] == 'X') {
+							if (j < BX - 1 || j > BX + 1 || i > BY + 1 || i < BY - 1)
+								a[j][i] = '.';
+						}
+					}
+				}
+				if (timech1 <= 0) {
+					BossChoice = 0;
+				}
+			}
+			if (BossChoice == 2) {
+
+				if (bmb == 0) {
+					if (a[BX + 2][BY + 2] == '.') {
+						a[BX + 2][BY + 2] = 'o';
+					}
+					else life -= 3;
+					if (a[BX + 2][BY] == '.') {
+						a[BX + 2][BY] = 'o';
+					}
+					else life -= 3;
+					if (a[BX][BY + 2] == '.') {
+						a[BX][BY + 2] = 'o';
+					}
+					else life -= 3;
+					if (a[BX - 2][BY - 2] == '.') {
+						a[BX - 2][BY - 2] = 'o';
+					}
+					else life -= 3;
+					if (a[BX - 2][BY + 2] == '.') {
+						a[BX - 2][BY + 2] = 'o';
+					}
+					else life -= 3;
+					if (a[BX + 2][BY - 2] == '.') {
+						a[BX + 2][BY - 2] = 'o';
+					}
+					else life -= 3;
+					if (a[BX - 2][BY] == '.') {
+						a[BX - 2][BY] = 'o';
+					}
+					else life -= 3;
+					if (a[BX][BY - 2] == '.') {
+						a[BX][BY - 2] = 'o';
+					}
+					else life -= 3;
+					bmb = 1;
+				}
+				else {
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == 'o') {
+								if (a[j][i + 1] == '@')
+									life--;
+								if (a[j + 1][i] == '@')
+									life--;
+								if (a[j + 1][i + 1] == '@')
+									life--;
+								if (a[j][i - 1] == '@')
+									life--;
+								if (a[j - 1][i] == '@')
+									life--;
+								if (a[j - 1][i - 1] == '@')
+									life--;
+								if (a[j + 1][i - 1] == '@')
+									life--;
+								if (a[j - 1][i + 1] == '@')
+									life--;
+								a[j][i] = '.';
+							}
+						}
+					}
+					bmb = 0;
+					BossChoice = 0;
+				}
+			}
+			if (BossChoice == 3) {
+				for (int i = 1; i < 15; i++) {
+					for (int j = y; j < y + 4; j++) {
+						if ((i + j) % 2 == 0)
+							if (a[j][i] == '.') {
+								a[j][i] = '^';
+							}
+							else {
+								if (a[j][i] == '@') {
+									life--;
+								}
+							}
+					}
+				}
+				if (y >= 29) {
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == '^')
+								a[j][i] = '.';
+						}
+					}
+					BossChoice = 0;
+					y = 16;
+				}
+				y += 4;
+			}
+
+		}
+		if (BossAction == 3) {
+			if (BossChoice == 0) {
+				BossActionKD--;
+				if (BossActionKD <= 0) {
+					srand(time(0));
+					BossChoice = 2 + rand() % 4;
+					BossActionKD = 1;
+				}
+				if (BossChoice == 4) {
+					timech1 = 7;
+				}
+				if (BossChoice == 3)
+					y = 16;
+			}
+			randTime--;
+			if (randTime < 1) {
+				randTime = 15;
+				if (a[16][1] != '@')
+					a[16][1] = 'b';
+				if (a[30][1] != '@')
+					a[30][1] = '+';
+				if (a[16][14] != '@')
+					a[16][14] = 'b';
+				if (a[30][14] != '@')
+					a[30][14] = '+';
+			}
+			if (BossChoice == 2) {
+
+				if (bmb == 0) {
+					if (a[BX + 3][BY + 3] == '.') {
+						a[BX + 3][BY + 3] = 'o';
+					}
+					else life--;
+					if (a[BX + 3][BY] == '.') {
+						a[BX + 3][BY] = 'o';
+					}
+					else life--;
+					if (a[BX][BY + 3] == '.') {
+						a[BX][BY + 3] = 'o';
+					}
+					else life--;
+					if (a[BX - 3][BY - 3] == '.') {
+						a[BX - 3][BY - 3] = 'o';
+					}
+					else life--;
+					if (a[BX - 3][BY + 3] == '.') {
+						a[BX - 3][BY + 3] = 'o';
+					}
+					else life--;
+					if (a[BX + 3][BY - 3] == '.') {
+						a[BX + 3][BY - 3] = 'o';
+					}
+					else life--;
+					if (a[BX - 3][BY] == '.') {
+						a[BX - 3][BY] = 'o';
+					}
+					else life--;
+					if (a[BX][BY - 3] == '.') {
+						a[BX][BY - 3] = 'o';
+					}
+					else life--;
+					bmb = 1;
+				}
+				else {
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == 'o') {
+								if (a[j][i + 1] == '@')
+									life -= 2;
+								if (a[j + 1][i] == '@')
+									life -= 2;
+								if (a[j + 1][i + 1] == '@')
+									life -= 2;
+								if (a[j][i - 1] == '@')
+									life -= 2;
+								if (a[j - 1][i] == '@')
+									life -= 2;
+								if (a[j - 1][i - 1] == '@')
+									life -= 2;
+								if (a[j + 1][i - 1] == '@')
+									life -= 2;
+								if (a[j - 1][i + 1] == '@')
+									life -= 2;
+								a[j][i] = '.';
+							}
+						}
+					}
+					bmb = 0;
+					BossChoice = 0;
+				}
+			}
+			if (BossChoice == 3) {
+				for (int i = 1; i < 15; i++) {
+					for (int j = y; j < y + 4; j++) {
+						if ((i + j) % 2 == 0)
+							if (a[j][i] == '.') {
+								a[j][i] = '^';
+							}
+							else {
+								if (a[j][i] == '@') {
+									life--;
+								}
+							}
+					}
+				}
+				if (y >= 29) {
+					for (int i = 1; i < 15; i++) {
+						for (int j = 16; j < 32; j++) {
+							if (a[j][i] == '^')
+								a[j][i] = '.';
+						}
+					}
+					BossChoice = 0;
+					y = 16;
+				}
+				y += 4;
+			}
+			if (BossChoice == 4) {
+				timech1--;
+				if (BX < playerX && a[BX + 1][BY] == '.') {
+					a[BX + 1][BY] = 'O';
+					a[BX][BY] = '.';
+					BX++;
+
+				}
+				else {
+					if (BX < playerX && a[BX + 1][BY] == '@') {
+						life--;
+					}
+					else {
+						if (BX > playerX && a[BX - 1][BY] == '.') {
+							a[BX - 1][BY] = 'O';
+							a[BX][BY] = '.';
+							BX--;
+						}
+						else {
+							if (BX > playerX && a[BX - 1][BY] == '@') {
+								life--;
+							}
+							else {
+								if (BY > playerY && a[BX][BY - 1] == '.') {
+									a[BX][BY - 1] = 'O';
+									a[BX][BY] = '.';
+									BY--;
+								}
+								else {
+									if (BY > playerY && a[BX][BY - 1] == '@') {
+										life--;
+									}
+									else {
+										if (BY < playerY && a[BX][BY + 1] == '.') {
+											a[BX][BY + 1] = 'O';
+											a[BX][BY] = '.';
+											BY++;
+										}
+										else {
+											if (BY < playerY && a[BX][BY + 1] == '@') {
+												life--;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (timech1 <= 0) {
+					a[BX][BY] = '.';
+					BX = 26; BY = 7;
+					a[BX][BY] = 'O';
+					BossChoice = 0;
+				}
+			}
+
+			if (en1l <= 0 && bot1 == 1) {
+				a[en1x][en1y] = '.';
+				en1x = -10;
+				en1y = -10;
+				bot1 = 0;
+			}
+
+			if (en2l <= 0 && bot2 == 1) {
+				a[en2x][en2y] = '.';
+				en2x = -10;
+				en2y = -10;
+				bot2 = 0;
+			}
+
+			if (en3l <= 0 && bot3 == 1) {
+				a[en3x][en3y] = '.';
+				en3x = -10;
+				en3y = -10;
+				bot3 = 0;
+			}
+			if (en4l <= 0 && bot4 == 1) {
+				a[en4x][en4y] = '.';
+				en4x = -10;
+				en4y = -10;
+				bot4 = 0;
+			}
+
+			if (en5l <= 0 && bot5 == 1) {
+				a[en5x][en5y] = '.';
+				en5x = -10;
+				en5y = -10;
+				bot5 = 0;
+			}
+
+			if (en6l <= 0 && bot6 == 1) {
+				a[en6x][en6y] = '.';
+				en6x = -10;
+				en6y = -10;
+				bot6 = 0;
+			}
+
+			if (bot1 == 0 && bot2 == 0 && bot3 == 0 && bot4 == 0 && bot5 == 0 && bot6 == 0 && BossChoice == 1)
+			{
+				BossChoice = 0;
+			}
+		}
+		if (BossLifes < 1) {
+			BossAction = 4;
+			for (int i = 1; i < 15; i++) {
+				for (int j = 16; j < 32; j++) {
+					if (a[j][i] == 'O' || a[j][i] == '(' || a[j][i] == ')' || a[j][i] == '=' || a[j][i] == '^')
+						a[j][i] = '.';
+				}
+			}
+		}
+
+		if (BossLifes < 19 && BossChoice == 0 && BossAction == 1) {
+			BossAction = 2;
+			a[BX+2][BY+2] = '.';
+			a[BX][BY+2] = '.';
+			a[BX+2][BY] = '.';
+			a[BX-2][BY-2] = '.';
+			a[BX-2][BY] = '.';
+			a[BX][BY-2] = '.';
+			a[BX - 2][BY+2] = '.';
+			a[BX+2][BY - 2] = '.';
+			for (int i = 1; i < 15; i++) {
+				for (int j = 16; j < 32; j++) {
+					if (a[j][i] == '(')
+						a[j][i] = 'X';
+					if (a[j][i] == ')')
+						a[j][i] = 'X';
+					if (a[j][i] == '=')
+						a[j][i] = 'X';
+				}
+			}
+		}
+
+		if (BossLifes < 11 && BossChoice == 0 && BossAction == 2) {
+			BossAction = 3;
+			for (int i = 1; i < 15; i++) {
+				for (int j = 16; j < 32; j++) {
+					if (a[j][i] == '(')
+						a[j][i] = '.';
+					if (a[j][i] == ')')
+						a[j][i] = '.';
+					if (a[j][i] == '=')
+						a[j][i] = '.';
+					if (a[j][i] == 'O')
+						a[j][i] = '.';
+				}
+			}
+			a[BX][BY] = 'O';
+		}
+
+		if (life < 1) {
+			action = '2';
+		}
+
+
+		if (BossAction == 4) {
+			a[32][7] = '#';
+	   }
+	}
+
+
+	if (action == '2') {
+		do {
+			system("cls");
+			cout << endl << endl << endl << "                                                You dead           ";
+			cout << endl << endl << endl << endl << endl << endl << endl;
+			cout << "\t\t\t\t\t        Do you want restart?" << endl << "\t\t\t\t\t    5 - Restart , 0 - Return to menu" << endl << "\t\t\t\t\t          Choose: ";
+			cin >> action;
+		} while (action != '5' && action != '0');
+	}
+
+	if (action == '3') {
+		do {
+			system("cls");
+			cout << endl << endl << endl << "                                                    Level completed           ";
+			cout << endl << endl << endl << endl << endl << endl << endl;
+			cout << "\t\t\t\t\t\t    Do you want restart?" << endl << "\t\t\t\t\t\t5 - Restart , 0 - Return to menu" << endl << "\t\t\t\t\t\t      Choose: ";
+			cin >> action;
+		} while (action != '5' && action != '0');
+	}
+
+	if (action == '5') {
+		system("cls");
+		action = 0;
+		Secondlvl(5, 0, Settings);
+		system("cls");
+	}
+
+	system("color F0");
+	system("cls");
+
+}
+
+void Firstlvl(int lifes, int bombs, int settings) {
+	char a[16][16];
+	char Action = ' ', action = '0';
+	int spX = 0, spY = 0, finX, finY, CheckLife = 5, EnemyLife = 3, EnX = 13, EnY = 12, en2x = 19, en1x = 21, en2y = 11, en3x = 42, en3y = 2, en1y = 10, bot1 = 0, bot2 = 0, bot3 = 0, enlife1 = 1, enlife2 = 1, enlife3 = 3, EnemyAction = 0;
+	int playerX, playerY, life = lifes, bomb = bombs, tut = 0, Settings = settings, usebomb = 0;
+	int L1 = 0;
+	ifstream file("level1.txt");
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 48; j++) {
+			file >> a[j][i];
+			if (a[j][i] == 'S') {
+				spX = j; spY = i;
+			}
+		}
+	}
+	a[spX][spY] = '@';
+	playerX = spX; playerY = spY;
+	file.close();
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("color E0");
+	
+	for (int y = 0; y < 100; y++)
+	{
+		cout << endl << endl << endl << endl << endl << "\t\t\t\t\t\t Chapter 1: Save the ";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+		cout << "P";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << "rincess" << endl << endl << endl << endl << endl << endl << endl << endl;
+		int p = 0;
+		if (y < 50) {
+			while (p <= y + 8) {
+				cout << " ";
+				p++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+			cout << " HELP ME! " << endl;
+		}
+		if (y >= 50) {
+			while (p <= y + 10) {
+				cout << " ";
+				p++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+			cout << " Wuahaha! " << endl;
+		}
+		int x = 0;
+		if (y > 5) {
+			int z = 5;
+			while (z < y) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				z++;
+			}
+			SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+			cout << "@";
+		}
+		if (y < 5)
+			while (x <= y) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				x++;
+			}
+		if (y >= 5)
+			while (x <= 5) {
+				SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+				cout << ".";
+				x++;
+			}
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+		if (y > 1)
+			cout << ".";
+		if (y > 2)
+			cout << ".";
+		if (y > 3)
+			cout << ".";
+		if (y > 4)
+			cout << ".";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << "X ";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+		cout << "P";
+		SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+		cout << " X";
+
+		Sleep(200);
+
+		y++;
+		system("cls");
+	}
+	
+	action = '1';
+
+	// Игровой скелет
+	while (action == '1') {
+
+		do {
+			for (int i = playerY - 7; i < playerY + 8; i++) {
+				for (int j = playerX - 7; j < playerX + 8; j++) {
+
+					if (j < playerX - 4 || j > playerX + 4 || i < playerY - 4 || i > playerY + 4 || j < 0 || i < 0 || j > 47 || i > 15) {
+						cout << setw(4) << " ";
+					}
+					else {
+						if (a[j][i] == '.') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightGray));
+						}
+						if (a[j][i] == 'X') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (a[j][i] == 'x') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (a[j][i] == 'P') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightMagenta));
+						}
+						if (a[j][i] == '^') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (a[j][i] == '@') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+						}
+						if (a[j][i] == '+') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+						}
+						if (a[j][i] == '*') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Brown));
+						}
+						if (a[j][i] == '#') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | White));
+						}
+						if (a[j][i] == 'b') {
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+						}
+						cout << setw(4) << a[j][i];
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+					}
+				}
+				if (i == playerY - 3) {
+					if (CheckLife > life) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " Ouch! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						CheckLife = life;
+					}
+					if (CheckLife < life) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " I have a power! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						CheckLife = life;
+					}
+					if (usebomb == 1) {
+						cout << "\t\t\t\t  ";
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+						cout << " BOOM! ";
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						usebomb = 0;
+					}
+				}
+				if (i == playerY - 2) {
+					cout << "\t\t\tPrince  ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightBlue));
+					cout << "@ ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (i == playerY - 1) {
+					cout << "\t\t________________________  ";
+				}
+				if (i == playerY + 1) {
+					cout << "\t\t\tLifes: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+					cout << life;
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (i == playerY + 2) {
+					cout << "\t\t\tBombs: ";
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+					cout << bomb;
+					SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+				}
+				if (tut == 1) {
+					if (i == playerY + 4) {
+
+						cout << "\t\tIt was a fake..";
+
+					}
+
+					if (i == playerY + 5) {
+
+						cout << "\tBut near you can see something like button";
+
+					}
+				}
+				if (tut == 2) {
+					if (i == playerY + 4) {
+
+						cout << "\t\tSomething is opened..";
+
+					}
+
+					if (i == playerY + 5) {
+
+						cout << "\t\t\t\tGo up";
+
+					}
+				}
+				if (EnemyAction == 1) {
+					if (i == playerY + 3) {
+
+						cout << "\t\t\t\t  ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+
+						cout << " Stop! ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+					}
+
+					if (i == playerY + 4) {
+
+						cout << "\t\t\tThief  ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+						cout << "X ";
+
+					}
+
+					if (i == playerY + 5) {
+
+						cout << "\t\t________________________  ";
+
+					}
+
+					if (i == playerY + 7) {
+
+						cout << "\t\t\tLifes: ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+						cout << EnemyLife;
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+					}
+				}
+
+				if (EnemyAction == 3) {
+					if (i == playerY + 3) {
+
+						cout << "\t  ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((White << 4) | Black));
+
+						cout << " Hahaha ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+					}
+
+					if (i == playerY + 4) {
+						if (bot1 == 1 && bot2 == 1)
+							cout << "\t    burglar x    \tburglar x";
+						if (bot1 == 0 || bot2 == 0)
+							cout << "\t    burglar x";
+					}
+
+					if (i == playerY + 5) {
+						if (bot1 == 1 && bot2 == 1)
+							cout << "\t   __________     \t___________";
+						if (bot1 == 0 || bot2 == 0)
+							cout << "\t   __________";
+
+					}
+
+					if (i == playerY + 7) {
+
+						if (bot1 == 1 && bot2 == 1) {
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife1;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife2;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (bot1 == 1 && bot2 == 0) {
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife1;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+						}
+						if (bot1 == 0 && bot2 == 1) {
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife2;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+
+					}
+				}
+				if (EnemyAction == 6) {
+
+					if (i == playerY + 4) {
+						if (bot1 == 1 && bot2 == 1)
+							cout << "\t    burglar x    \tburglar x";
+						if (bot1 == 0 || bot2 == 0)
+							cout << "\t    burglar x";
+					}
+
+					if (i == playerY + 5) {
+						if (bot1 == 1 && bot2 == 1)
+							cout << "\t   __________     \t___________";
+						if (bot1 == 0 || bot2 == 0)
+							cout << "\t   __________";
+
+					}
+
+					if (i == playerY + 7) {
+
+						if (bot1 == 1 && bot2 == 1) {
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife1;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife2;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (bot1 == 1 && bot2 == 0) {
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife1;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+						}
+						if (bot1 == 0 && bot2 == 1) {
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife2;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+
+					}
+				}
+				if (EnemyAction == 8) {
+
+					if (i == playerY + 4) {
+						cout << "\t    burglar x";
+					}
+
+					if (i == playerY + 5) {
+						cout << "\t   __________";
+
+					}
+
+					if (i == playerY + 7) {
+
+						cout << "\t    Lifes: ";
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+						cout << enlife1;
+
+						SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+					}
+
+				}
+				if (EnemyAction == 10) {
+
+					if (i == playerY + 4) {
+						if (bot1 == 1 && bot3 != 0)
+							cout << "\t    burglar x    \tThief X";
+						if (bot1 == 1 && bot3 == 0)
+							cout << "\t    burglar x";
+						if (bot1 == 0 && bot3 != 0)
+							cout << "\t    Thief X";
+					}
+
+					if (i == playerY + 5) {
+						if (bot1 == 1 && bot3 != 0)
+							cout << "\t   __________     \t___________";
+						if (bot1 == 0 || bot3 == 0)
+							cout << "\t   __________";
+
+					}
+
+					if (i == playerY + 7) {
+
+						if (bot1 == 1 && bot3 != 0) {
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife1;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife3;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+						if (bot1 == 1 && bot3 == 0) {
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife1;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+
+						}
+						if (bot1 == 0 && bot3 != 0) {
+
+							cout << "\t    Lifes: ";
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | LightRed));
+
+							cout << enlife3;
+
+							SetConsoleTextAttribute(hConsole, (WORD)((Yellow << 4) | Black));
+						}
+
+					}
+				}
+
+				cout << endl;
+			}
+
+			cout << endl << endl << "                            Game control";
+			cout << endl << "____________________________________________________________________";
+			if (Settings == 0) {
+				cout << endl << endl << "                                 U" << endl;
+				cout << endl << "                           L     B     R" << endl;
+				cout << endl << "                                 D" << endl << endl;
+			}
+			if (Settings == 1) {
+				cout << endl << endl << "                                 W" << endl;
+				cout << endl << "                           A     B     D" << endl;
+				cout << endl << "                                 S" << endl << endl;
+			}
+			cout << "____________________________________________________________________";
+			cout << endl << "                           Your decision: ";
+
+			std::cin >> Action;
+			system("cls");
+		} while (Action != 'U' && Action != 'L' && Action != 'R' && Action != 'D' && Action != 'B' && Action != 'u' && Action != 'l' && Action != 'r' && Action != 'd' && Action != 'b' && Action != 'W' && Action != 'A' && Action != 'S' && Action != 'w' && Action != 'a' && Action != 's');
+
+		if (Settings == 0) {
+			if (Action == 'u')
+				Action = 'U';
+			if (Action == 'd')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'l')
+				Action = 'L';
+			if (Action == 'r')
+				Action = 'R';
+		}
+		if (Settings == 1) {
+			if (Action == 'd' || Action == 'D')
+				Action = 'R';
+			if (Action == 'w' || Action == 'W')
+				Action = 'U';
+			if (Action == 's' || Action == 'S')
+				Action = 'D';
+			if (Action == 'b')
+				Action = 'B';
+			if (Action == 'a' || Action == 'A')
+				Action = 'L';
+		}
+
+		switch (Action) {
+		case 'U':
+			if (a[playerX][playerY - 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY - 1] == '.') {
+					a[playerX][playerY - 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY--;
+				}
+				else {
+					if (a[playerX][playerY - 1] == '#') {
+
+						a[playerX][playerY - 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY--;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX][playerY - 1] == '+') {
+							a[playerX][playerY - 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY--;
+						}
+						else {
+							if (a[playerX][playerY - 1] == a[EnX][EnY]) {
+								EnemyLife--;
+							}
+							else {
+								if (a[playerX][playerY - 1] == 'b') {
+									EnemyLife--;
+									a[playerX][playerY - 1] = '@';
+									a[playerX][playerY] = '.';
+									playerY--; bomb++;
+								}
+								else {
+									if (a[playerX][playerY - 1] == '?') {
+										if (tut == 1) {
+											tut = 2;
+											a[15][1] = '.';
+											a[16][1] = '.';
+											a[playerX][playerY - 1] = '.';
+										}
+										if (tut == 7) {
+											a[37][6] = '.';
+											a[37][7] = '.';
+											a[37][8] = '.';
+											a[playerX][playerY - 1] = '.';
+										}
+										if (tut == 8) {
+											a[40][7] = '.';
+											a[playerX][playerY - 1] = '.';
+										}
+									}
+									else {
+										if (a[playerX][playerY - 1] == 'P') {
+											tut = 1;
+											a[playerX][playerY - 1] = '?';
+										}
+										else {
+											if (a[playerX][playerY - 1] == a[en1x][en1y]) {
+												enlife1--;
+											}
+											else {
+												if (a[playerX][playerY - 1] == a[en2x][en2y]) {
+													enlife2--;
+												}
+												else {
+													if (a[playerX][playerY - 1] == a[en3x][en3y]) {
+														enlife3--;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'L':
+			if (a[playerX - 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX - 1][playerY] == '.') {
+					a[playerX - 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX--;
+				}
+				else {
+					if (a[playerX - 1][playerY] == '#') {
+
+						a[playerX - 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX--;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX - 1][playerY] == '+') {
+							a[playerX - 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX--;
+						}
+						else {
+							if (a[playerX - 1][playerY] == a[EnX][EnY]) {
+								EnemyLife--;
+							}
+							else {
+								if (a[playerX - 1][playerY] == 'b') {
+									a[playerX - 1][playerY] = '@';
+									a[playerX][playerY] = '.';
+									playerX--; bomb++;
+								}
+								else {
+									if (a[playerX - 1][playerY] == '?') {
+										if (tut == 1) {
+											tut = 2;
+											a[15][1] = '.';
+											a[16][1] = '.';
+											a[playerX - 1][playerY] = '.';
+										}
+										if (tut == 7) {
+											a[37][6] = '.';
+											a[37][7] = '.';
+											a[37][8] = '.';
+											a[playerX - 1][playerY] = '.';
+										}
+										if (tut == 8) {
+											a[40][7] = '.';
+											a[playerX - 1][playerY] = '.';
+										}
+										else {
+											if (a[playerX - 1][playerY] == 'P') {
+												tut = 1;
+												a[playerX - 1][playerY] = '?';
+											}
+											else {
+												if (a[playerX - 1][playerY] == a[en1x][en1y]) {
+													enlife1--;
+												}
+												else {
+													if (a[playerX - 1][playerY] == a[en2x][en2y]) {
+														enlife2--;
+													}
+													else {
+														if (a[playerX - 1][playerY] == a[en3x][en3y]) {
+															enlife3--;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'R':
+			if (a[playerX + 1][playerY] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX + 1][playerY] == '.') {
+					a[playerX + 1][playerY] = '@';
+					a[playerX][playerY] = '.';
+					playerX++;
+				}
+				else {
+					if (a[playerX + 1][playerY] == '#') {
+
+						a[playerX + 1][playerY] = '@';
+						a[playerX][playerY] = '.';
+						playerX++;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX + 1][playerY] == '+') {
+							a[playerX + 1][playerY] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerX++;
+						}
+						else {
+							if (a[playerX + 1][playerY] == a[EnX][EnY]) {
+								EnemyLife--;
+							}
+							else {
+								if (a[playerX + 1][playerY] == 'b') {
+									a[playerX + 1][playerY] = '@';
+									a[playerX][playerY] = '.';
+									playerX++; bomb++;
+								}
+								else {
+									if (a[playerX + 1][playerY] == '?') {
+										if (tut == 1) {
+											tut = 2;
+											a[15][1] = '.';
+											a[16][1] = '.';
+											a[playerX + 1][playerY] = '.';
+										}
+										if (tut == 7) {
+											a[37][6] = '.';
+											a[37][7] = '.';
+											a[37][8] = '.';
+											a[playerX + 1][playerY] = '.';
+										}
+										if (tut == 8) {
+											a[40][7] = '.';
+											a[playerX + 1][playerY] = '.';
+										}
+
+									}
+									else {
+										if (a[playerX + 1][playerY] == 'P') {
+											tut = 1;
+											a[playerX + 1][playerY] = '?';
+										}
+										else {
+											if (a[playerX + 1][playerY] == a[en1x][en1y]) {
+												enlife1--;
+											}
+											else {
+												if (a[playerX + 1][playerY] == a[en2x][en2y]) {
+													enlife2--;
+												}
+												else {
+													if (a[playerX + 1][playerY] == a[en3x][en3y]) {
+														enlife3--;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'D':
+			if (a[playerX][playerY + 1] == '^') {
+				life--;
+			}
+			else {
+				if (a[playerX][playerY + 1] == '.') {
+					a[playerX][playerY + 1] = '@';
+					a[playerX][playerY] = '.';
+					playerY++;
+				}
+				else {
+					if (a[playerX][playerY + 1] == '#') {
+
+						a[playerX][playerY + 1] = '@';
+						a[playerX][playerY] = '.';
+						playerY++;
+						action = '3';
+
+					}
+					else {
+						if (a[playerX][playerY + 1] == '+') {
+							a[playerX][playerY + 1] = '@';
+							a[playerX][playerY] = '.';
+							life++; playerY++;
+						}
+						else {
+							if (a[playerX][playerY + 1] == a[EnX][EnY]) {
+								EnemyLife--;
+
+							}
+							else {
+								if (a[playerX][playerY + 1] == 'b') {
+									a[playerX][playerY + 1] = '@';
+									a[playerX][playerY] = '.';
+									playerY++; bomb++;
+								}
+								else {
+									if (a[playerX][playerY + 1] == '?') {
+										if (tut == 1) {
+											tut = 2;
+											a[15][1] = '.';
+											a[16][1] = '.';
+											a[playerX][playerY + 1] = '.';
+										}
+										if (tut == 7) {
+											a[37][6] = '.';
+											a[37][7] = '.';
+											a[37][8] = '.';
+											a[playerX][playerY + 1] = '.';
+										}
+										if (tut == 8) {
+											a[40][7] = '.';
+											a[playerX][playerY + 1] = '.';
+										}
+									}
+									else {
+										if (a[playerX][playerY + 1] == 'P') {
+											tut = 1;
+											a[playerX][playerY + 1] = '?';
+										}
+										else {
+											if (a[playerX][playerY + 1] == a[en1x][en1y]) {
+												enlife1--;
+											}
+											else {
+												if (a[playerX][playerY + 1] == a[en2x][en2y]) {
+													enlife2--;
+												}
+												else {
+													if (a[playerX][playerY + 1] == a[en3x][en3y]) {
+														enlife3--;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 'B':
+			if (bomb > 0) {
+				usebomb = 1;
+				bomb--;
+				if (a[playerX][playerY + 1] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX + 1][playerY + 1] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX + 1][playerY] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX][playerY - 1] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX - 1][playerY - 1] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX - 1][playerY] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX - 1][playerY + 1] == a[EnX][EnY])
+					EnemyLife -= 3;
+				if (a[playerX + 1][playerY - 1] == a[EnX][EnY])
+					EnemyLife -= 3;
+
+				if (a[playerX][playerY + 1] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX + 1][playerY + 1] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX + 1][playerY] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX][playerY - 1] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX - 1][playerY - 1] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX - 1][playerY] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX - 1][playerY + 1] == a[en1x][en1y])
+					enlife1 -= 3;
+				if (a[playerX + 1][playerY - 1] == a[en1x][en1y])
+					enlife1 -= 3;
+
+				if (a[playerX][playerY + 1] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX + 1][playerY + 1] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX + 1][playerY] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX][playerY - 1] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX - 1][playerY - 1] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX - 1][playerY] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX - 1][playerY + 1] == a[en2x][en2y])
+					enlife2 -= 3;
+				if (a[playerX + 1][playerY - 1] == a[en2x][en2y])
+					enlife2 -= 3;
+
+				if (a[playerX][playerY + 1] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX + 1][playerY + 1] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX + 1][playerY] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX][playerY - 1] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX - 1][playerY - 1] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX - 1][playerY] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX - 1][playerY + 1] == a[en3x][en3y])
+					enlife3 -= 3;
+				if (a[playerX + 1][playerY - 1] == a[en3x][en3y])
+					enlife3 -= 3;
+
+			}
+			break;
+		}
+		L1++;
+		if (L1 == 4)
+			L1 = 0;
+		switch (L1) {
+		case 0:
+			if (a[1][11] == '@') {
+				a[1][11] = '^';
+				a[1][10] = '@';
+				playerX = 1;
+				playerY = 10;
+				life--;
+			}
+			a[1][11] = '^';
+			a[2][11] = '^';
+			a[3][11] = '^';
+			a[4][11] = '.';
+			if (a[5][11] != '@')
+				a[5][11] = '.';
+			break;
+		case 1:
+			if (a[4][11] == '@') {
+				a[4][11] = '^';
+				a[4][10] = '@';
+				playerX = 4;
+				playerY = 10;
+				life--;
+			}
+			a[1][11] = '.';
+			a[2][11] = '^';
+			a[3][11] = '^';
+			a[4][11] = '^';
+			if (a[5][11] != '@')
+				a[5][11] = '.';
+			break;
+		case 2:
+			if (a[5][11] == '@') {
+				a[5][11] = '^';
+				a[5][10] = '@';
+				playerX = 5;
+				playerY = 10;
+				life--;
+			}
+			if (a[1][11] != '@')
+				a[1][11] = '.';
+			a[2][11] = '.';
+			a[3][11] = '^';
+			a[4][11] = '^';
+			a[5][11] = '^';
+			break;
+		case 3:
+			if (a[2][11] == '@') {
+				a[2][11] = '^';
+				a[2][10] = '@';
+				playerX = 2;
+				playerY = 10;
+				life--;
+			}
+			if (a[1][11] != '@')
+				a[1][11] = '.';
+			a[2][11] = '^';
+			a[3][11] = '^';
+			a[4][11] = '^';
+			a[5][11] = '.';
+			break;
+		}
+		if (playerX > 9 && EnemyAction < 1)
+			EnemyAction = 1;
+
+		if (EnemyLife <= 0 && EnemyAction == 1) {
+			EnemyAction = 2;
+			a[EnX][EnY] = '.';
+		}
+
+		if (enlife1 <= 0 && bot1 == 1) {
+			a[en1x][en1y] = '.';
+			en1x = -10;
+			en1y = -10;
+			bot1 = 0;
+		}
+		if (enlife2 <= 0 && bot2 == 1) {
+			a[en2x][en2y] = '.';
+			en2x = -10;
+			en2y = -10;
+			bot2 = 0;
+		}
+
+		if (enlife3 <= 0 && bot3 == 1) {
+			a[en3x][en3y] = '.';
+			en3x = -10;
+			en3y = -10;
+			bot3 = 0;
+		}
+
+		if (EnemyAction == 1) {
+			if (EnX < playerX && a[EnX + 1][EnY] == '.') {
+				a[EnX + 1][EnY] = 'X';
+				a[EnX][EnY] = '.';
+				EnX++;
+
+			}
+			else {
+				if (EnX < playerX && a[EnX + 1][EnY] == '@') {
+					life--;
+				}
+				else {
+					if (EnX > playerX && a[EnX - 1][EnY] == '.') {
+						a[EnX - 1][EnY] = 'X';
+						a[EnX][EnY] = '.';
+						EnX--;
+					}
+					else {
+						if (EnX > playerX && a[EnX - 1][EnY] == '@') {
+							life--;
+						}
+						else {
+							if (EnY > playerY && a[EnX][EnY - 1] == '.') {
+								a[EnX][EnY - 1] = 'X';
+								a[EnX][EnY] = '.';
+								EnY--;
+							}
+							else {
+								if (EnY > playerY && a[EnX][EnY - 1] == '@') {
+									life--;
+								}
+								else {
+									if (EnY < playerY && a[EnX][EnY + 1] == '.') {
+										a[EnX][EnY + 1] = 'X';
+										a[EnX][EnY] = '.';
+										EnY++;
+									}
+									else {
+										if (EnY < playerY && a[EnX][EnY + 1] == '@') {
+											life--;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (EnemyAction == 3 || EnemyAction == 6 || EnemyAction == 8 || EnemyAction == 10) {
+			if (bot1 == 1) {
+				if (en1x < playerX && a[en1x + 1][en1y] == '.') {
+					a[en1x + 1][en1y] = 'x';
+					a[en1x][en1y] = '.';
+					en1x++;
+					
+				}
+				else {
+					if (en1x < playerX && a[en1x + 1][en1y] == '@') {
+						life--; 
+					}
+					else {
+						if (en1x > playerX && a[en1x - 1][en1y] == '.') {
+							a[en1x - 1][en1y] = 'x';
+							a[en1x][en1y] = '.';
+							en1x--;
+						}
+						else {
+							if (en1x > playerX && a[en1x - 1][en1y] == '@') {
+								life--; 
+							}
+							else {
+								if (en1y > playerY && a[en1x][en1y - 1] == '.') {
+									a[en1x][en1y - 1] = 'x';
+									a[en1x][en1y] = '.';
+									en1y--;
+								}
+								else {
+									if (en1y > playerY && a[en1x][en1y - 1] == '@') {
+										life--; 
+									}
+									else {
+										if (en1y < playerY && a[en1x][en1y + 1] == '.') {
+											a[en1x][en1y + 1] = 'x';
+											a[en1x][en1y] = '.';
+											en1y++; 
+										}
+										else {
+											if (en1y < playerY && a[en1x][en1y + 1] == '@') {
+												life--; 
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (bot2 == 1) {
+				if (en2x < playerX && a[en2x + 1][en2y] == '.') {
+					a[en2x + 1][en2y] = 'x';
+					a[en2x][en2y] = '.';
+					en2x++;
+				}
+				else {
+					if (en2x < playerX && a[en2x + 1][en2y] == '@') {
+						life--;
+					}
+					else {
+						if (en2x > playerX && a[en2x - 1][en2y] == '.') {
+							a[en2x - 1][en2y] = 'x';
+							a[en2x][en2y] = '.';
+							en2x--; 
+						}
+						else {
+							if (en2x > playerX && a[en2x - 1][en2y] == '@') {
+								life--;
+							}
+							else {
+								if (en2y > playerY && a[en2x][en2y - 1] == '.') {
+									a[en2x][en2y - 1] = 'x';
+									a[en2x][en2y] = '.';
+									en2y--; 
+								}
+								else {
+									if (en2y > playerY && a[en2x][en2y - 1] == '@') {
+										life--;
+									}
+									else {
+										if (en2y < playerY && a[en2x][en2y + 1] == '.') {
+											a[en2x][en2y + 1] = 'x';
+											a[en2x][en2y] = '.';
+											en2y++;
+										}
+										else {
+											if (en2y < playerY && a[en2x][en2y + 1] == '@') {
+												life--;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (bot3 == 1) {
+				cout << EnemyAction;
+				if (en3x < playerX && a[en3x + 1][en3y] == '.') {
+					a[en3x + 1][en3y] = 'X';
+					a[en3x][en3y] = '.';
+					en3x++;
+					
+				}
+				else {
+					if (en3x < playerX && a[en3x + 1][en3y] == '@') {
+						life--; 
+					}
+					else {
+						if (en3x > playerX && a[en3x - 1][en3y] == '.') {
+							a[en3x - 1][en3y] = 'X';
+							a[en3x][en3y] = '.';
+							en3x--; 
+						}
+						else {
+							if (en3x > playerX && a[en3x - 1][en3y] == '@') {
+								life--; cout << "*";
+							}
+							else {
+								if (en3y > playerY && a[en3x][en3y - 1] == '.') {
+									a[en3x][en3y - 1] = 'X';
+									a[en3x][en3y] = '.';
+									en3x--; 
+								}
+								else {
+									if (en3y > playerY && a[en3x][en3y - 1] == '@') {
+										life--; 
+									}
+									else {
+										if (en3y < playerY && a[en3x][en3y + 1] == '.') {
+											a[en3x][en3y + 1] = 'X';
+											a[en3x][en3y] = '.';
+											en3y++;
+										}
+										else {
+											if (en3y < playerY && a[en3x][en3y + 1] == '@') {
+												life--; 
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (tut <= 3 && playerX > 15 && playerY > 5) {
+			tut = 4; EnemyAction = 3;
+			bot1 = 1; bot2 = 1;
+		}
+
+		if (bot1 == 0 && bot2 == 0 && tut <= 4 && EnemyAction == 3) {
+			EnemyAction = 4; tut = 5;
+		}
+
+		if (bot1 == 0 && bot2 == 0 && EnemyAction == 4) {
+			EnemyAction = 5;
+		}
+
+		if (bot1 == 0 && bot2 == 0 && EnemyAction == 6) {
+			EnemyAction = 7;
+			tut = 7;
+		}
+
+		if (bot1 == 0 && bot3 == 0 && EnemyAction == 10) {
+			EnemyAction = 11;
+		}
+
+		if (bot1 == 0 && EnemyAction == 8) {
+			EnemyAction = 9;
+		}
+
+		if (playerX > 25 && EnemyAction == 5) {
+			EnemyAction = 6;
+			en1x = 30;
+			en2x = 30; bot1 = 1; bot2 = 1;
+			en1y = 6;
+			en2y = 8; enlife1 = 1; enlife2 = 1;
+		}
+
+		if (playerX > 36 && EnemyAction == 9) {
+			EnemyAction = 10; tut = 8;
+			en1x = 44;
+			bot1 = 1;
+			bot3 = 1;
+			en1y = 13;
+		    enlife1 = 1; enlife3 = 3;
+		}
+
+		if (playerX > 33 && EnemyAction == 7) {
+			EnemyAction = 8;
+			en1x = 35;
+			bot1 = 1;
+			en1y = 13;
+			enlife1 = 1;
+		}
+
+		if (playerX > 25 && EnemyAction == 5) {
+			EnemyAction = 6;
+			en1x = 30;
+			en2x = 30; bot1 = 1; bot2 = 1;
+			en1y = 6;
+			en2y = 8; enlife1 = 1; enlife2 = 1;
+		}
+
+		if (tut <= 2 && playerX > 15) {
+			tut = 3;
+		}
+
+		if (life < 1) {
+			action = '2';
+		}
+		}
+		
+		
+	if (action == '2') {
+		do {
+			system("cls");
+			cout << endl << endl << endl << "                                                    You dead           ";
+			cout << endl << endl << endl << endl << endl << endl << endl;
+			cout << "\t\t\t\t\t\t    Do you want restart?" << endl << "\t\t\t\t\t\t5 - Restart , 0 - Return to menu" << endl << "\t\t\t\t\t\t      Choose: ";
+			cin >> action;
+		} while (action != '5' && action != '0');
+	}
+
+	if (action == '5') {
+		action = 0;
+		Firstlvl(5, 0, Settings);
+		system("cls");
+	}
+
+	if (action == '3')
+		Secondlvl(life, bomb, Settings);
+
+	system("color F0");
+	system("cls");
+
+}
+
+int main() {
+
+	// Подготовка
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("color F0");
+	char Choose = '0', setmenu = '1';
+	int PlayerLife = 0, PlayerBomb = 0;
+	int Settings = 0;
+	ifstream file("lvl1.txt");
+	srand(time(0));
+	do {
+		do {
+			cout << endl << endl << endl << endl << endl << "\t\t\t\t\t\tPrince the Game" << endl << endl << endl << endl;
+			cout << "\t\t\t\t\t\t (1) New game" << endl;
+			cout << "\t\t\t\t\t\t (2) Tutorial" << endl;
+			cout << "\t\t\t\t\t\t (3) Settings" << endl;
+			cout << "\t\t\t\t\t\t (4)   Exit  " << endl << endl << "\t\t\t\t\t\t Choose: ";
+			cin >> Choose;
+			system("cls");
+		} while (Choose != '1' && Choose != '2' && Choose != '3' && Choose != '4');
+
+		if (Choose == '1') {
+			Thirdlvl(5, 0, Settings);
+		}
+		if (Choose == '2') {
+			Tutorial(5, 0, Settings);
+
+		}
+		if (Choose == '3') {
+			do {
+		    setmenu = '1';
+			cout << endl << endl << endl << endl << endl << "\t\t\t\t\t\t   Settings" << endl << endl << endl << endl;
+			cout << "\t\t\t\t\t       Contoller: ";
+			if(Settings == 0)
+				cout << "ULDR";
+			if (Settings == 1)
+				cout << "WASD";
+			cout << endl << endl << endl << "\t      ULDR = 2 \t\t\t\t WASD = 3 \t\t\t\t Exit = 0";
+			cout << endl << endl << "\t\t\t\t\t\tChoose:";
+			cin >> setmenu;
+			if (setmenu == '2')
+				Settings = 0;
+			if (setmenu == '3')
+				Settings = 1;
+			system("cls");
+			} while (setmenu != '0');
+		}
+	} while (Choose != '4');
+
+}
